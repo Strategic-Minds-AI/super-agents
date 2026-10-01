@@ -1,0 +1,45 @@
+{
+  "name": "Autonomous Heartbeat",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "autonomous_heartbeat",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "beat": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "runAutonomousHeartbeat",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Run autonomous heartbeat",
+            "description": "Process due tasks + re-audit stale domains"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Fires every hour with no button press. Reads due autonomous AgentTasks from the queue, executes them via the deterministic growth pipeline, and re-audits stale domains. No LLM, no credits \u2014 pure code on a clock.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 * * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}
