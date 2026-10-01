@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import MessageBubble from "./MessageBubble";
 
 export default function AgentChat({ agentName, agentLabel, onBack }) {
@@ -9,23 +9,31 @@ export default function AgentChat({ agentName, agentLabel, onBack }) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const scrollRef = useRef(null);
+
+  const initConversation = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const conv = await base44.agents.createConversation({ agent_name: agentName, metadata: { name: agentLabel } });
+      setConversation(conv);
+      setMessages(conv.messages || []);
+      setLoading(false);
+      const unsub = base44.agents.subscribeToConversation(conv.id, (data) => {
+        setMessages(data.messages || []);
+      });
+      return unsub;
+    } catch (e) {
+      setError(e.message || "Failed to connect to this agent. Integration credits may be exhausted — the agent system needs active credits to run.");
+      setLoading(false);
+      return () => {};
+    }
+  };
 
   useEffect(() => {
     let unsub = () => {};
-    (async () => {
-      try {
-        const conv = await base44.agents.createConversation({ agent_name: agentName, metadata: { name: agentLabel } });
-        setConversation(conv);
-        setMessages(conv.messages || []);
-        setLoading(false);
-        unsub = base44.agents.subscribeToConversation(conv.id, (data) => {
-          setMessages(data.messages || []);
-        });
-      } catch (e) {
-        setLoading(false);
-      }
-    })();
+    initConversation().then((fn) => { unsub = fn; });
     return () => unsub();
   }, [agentName]);
 
@@ -38,10 +46,11 @@ export default function AgentChat({ agentName, agentLabel, onBack }) {
     if (!text || !conversation || sending) return;
     setInput("");
     setSending(true);
+    setError(null);
     try {
       await base44.agents.addMessage(conversation, { role: "user", content: text });
     } catch (e) {
-      setSending(false);
+      setError(e.message || "Failed to send message. The agent system may be out of integration credits.");
     }
     setSending(false);
   };
@@ -56,6 +65,15 @@ export default function AgentChat({ agentName, agentLabel, onBack }) {
       <div ref={scrollRef} className="xa-scroll flex-1 overflow-y-auto px-4 py-6 space-y-5 bg-white">
         {loading ? (
           <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 animate-spin text-[#CCBB00]" /></div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center h-full px-6 text-center">
+            <AlertCircle className="w-10 h-10 text-red-400 mb-3" />
+            <p className="text-sm font-semibold text-black/70 mb-1">Agent unavailable</p>
+            <p className="text-xs text-black/50 mb-4 max-w-xs">{error}</p>
+            <button onClick={() => initConversation()} className="xa-btn-outline text-sm">
+              <RefreshCw className="w-4 h-4" /> Retry connection
+            </button>
+          </div>
         ) : messages.length === 0 ? (
           <div className="text-center text-black/40 mt-20">Send a message to activate this super-agent.</div>
         ) : messages.map((m, i) => <MessageBubble key={i} message={m} />)}

@@ -1,8 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 import { secrets } from 'base44:runtime';
+import { callAI } from '../../shared/aiRouter.ts';
 
-// TEMPLATE GENERATOR — uses InvokeLLM to generate a full website template spec
-// from a niche + style. Returns structured JSON matching the SystemBuild fields.
+// TEMPLATE GENERATOR — uses the intelligent AI router to pick the best model
+// for template generation. Routes through Vercel AI Gateway (your key, no
+// Base44 credits) with automatic fallback to Base44 InvokeLLM.
 
 export default async function(req) {
   try {
@@ -19,7 +21,8 @@ export default async function(req) {
     const niche = body.niche || 'business';
     const style = body.style || 'modern professional';
 
-    const prompt = `Generate a complete, production-ready website template spec for a ${niche} business. Design style: ${style}. The template must be SEO-optimized to meet Google's 100% programmatic requirements (title 50-60 chars, meta description 150-160 chars, H1 + H2s, schema markup, mobile-friendly, fast page speed). Return a JSON object with these exact fields:
+    const systemPrompt = 'You are an elite website template generator. You produce production-ready, SEO-optimized website specs. Return only valid JSON, no markdown, no explanation.';
+    const userPrompt = `Generate a complete, production-ready website template spec for a ${niche} business. Design style: ${style}. The template must be SEO-optimized to meet Google's 100% programmatic requirements (title 50-60 chars, meta description 150-160 chars, H1 + H2s, schema markup, mobile-friendly, fast page speed). Return a JSON object with these exact fields:
 - title: a compelling site title
 - what_to_build: detailed description of what to build
 - how_it_looks: design style, colors, layout, aesthetic
@@ -44,50 +47,22 @@ export default async function(req) {
       required: ['title', 'what_to_build', 'how_it_looks', 'how_it_functions']
     };
 
-    // Use Vercel AI Gateway if key is set (free — no Base44 credits)
     const vercelKey = secrets.get('VERCEL_AI_GATEWAY_KEY');
-    let template;
-    let aiProvider = 'base44_invoke_llm';
-
-    if (vercelKey) {
-      const res = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${vercelKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-4o-mini',
-          messages: [
-            { role: 'system', content: 'You are a website template generator. Return only valid JSON, no markdown.' },
-            { role: 'user', content: prompt + '\n\nReturn a JSON object with these exact fields: title, what_to_build, how_it_looks, how_it_functions, what_it_connects_to, what_it_says, how_it_operates, deliver_to.' }
-          ],
-          response_format: { type: 'json_object' }
-        }),
-        signal: AbortSignal.timeout(30000)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const content = data.choices?.[0]?.message?.content;
-        template = JSON.parse(content);
-        aiProvider = 'vercel_ai_gateway';
-      } else {
-        const errText = await res.text().catch(() => '');
-        return Response.json({ error: `Vercel AI Gateway error: ${res.status} ${errText.slice(0, 200)}` }, { status: 502 });
-      }
-    } else {
-      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: responseSchema
-      });
-      template = typeof result === 'string' ? JSON.parse(result) : result;
-    }
+    const { result, provider, model, routedTask } = await callAI(base44, {
+      vercelKey,
+      taskType: 'template_generation',
+      systemPrompt,
+      userPrompt,
+      jsonSchema: responseSchema,
+    });
 
     return Response.json({
       niche,
       style,
-      template,
-      ai_provider: aiProvider
+      template: typeof result === 'string' ? JSON.parse(result) : result,
+      ai_provider: provider,
+      ai_model: model,
+      routed_task: routedTask,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
