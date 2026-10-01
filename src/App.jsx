@@ -20,6 +20,7 @@ import MissionControl from '@/pages/MissionControl';
 import SystemFactory from '@/pages/SystemFactory';
 import BatchOperations from '@/pages/BatchOperations';
 import WebsiteFactory from '@/pages/WebsiteFactory';
+import Analytics from '@/pages/Analytics';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -61,6 +62,7 @@ const AuthenticatedApp = () => {
         <Route path="/factory" element={<SystemFactory />} />
         <Route path="/batch" element={<BatchOperations />} />
         <Route path="/website-factory" element={<WebsiteFactory />} />
+        <Route path="/analytics" element={<Analytics />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

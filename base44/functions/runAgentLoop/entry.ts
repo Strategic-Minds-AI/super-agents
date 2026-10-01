@@ -260,6 +260,16 @@ export default async function(req) {
               reportData = { type: 'Repo Generation', domain: parsed.repo_name, ...result };
               return { repo: result };
 
+            } else if (task.task_type === 'buy_domain' && task.domain) {
+              // DOMAIN BUYER — check + purchase via GoDaddy API
+              const res = await withRetry(() =>
+                base44.asServiceRole.functions.invoke('runDomainBuyer', { domain: task.domain, buy: true }),
+                { retries: 1 }
+              );
+              const result = res.data || {};
+              reportData = { type: 'Domain Purchase', domain: task.domain, ...result };
+              return { purchase: result };
+
             } else {
               reportData = { type: task.task_type || 'generic', note: 'executed' };
               return { note: 'executed', task_type: task.task_type };

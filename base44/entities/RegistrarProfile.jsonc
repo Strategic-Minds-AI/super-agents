@@ -1,0 +1,48 @@
+{
+  "name": "RegistrarProfile",
+  "type": "object",
+  "properties": {
+    "name_first": {
+      "type": "string",
+      "title": "First Name"
+    },
+    "name_last": {
+      "type": "string",
+      "title": "Last Name"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Phone"
+    },
+    "address1": {
+      "type": "string",
+      "title": "Address"
+    },
+    "city": {
+      "type": "string",
+      "title": "City"
+    },
+    "state": {
+      "type": "string",
+      "title": "State"
+    },
+    "postal_code": {
+      "type": "string",
+      "title": "Postal Code"
+    },
+    "country": {
+      "type": "string",
+      "title": "Country",
+      "default": "US"
+    }
+  },
+  "required": [
+    "name_first",
+    "name_last",
+    "email"
+  ]
+}
