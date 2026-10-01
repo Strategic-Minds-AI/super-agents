@@ -47,7 +47,7 @@ export default async function(req) {
       required: ['title', 'what_to_build', 'how_it_looks', 'how_it_functions']
     };
 
-    const vercelKey = secrets.get('VERCEL_AI_GATEWAY_KEY');
+    const vercelKey = secrets.get('AI_GATEWAY_API_KEY') || secrets.get('VERCEL_AI_GATEWAY_KEY');
     const { result, provider, model, routedTask } = await callAI(base44, {
       vercelKey,
       taskType: 'template_generation',

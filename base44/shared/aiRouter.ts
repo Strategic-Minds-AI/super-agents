@@ -168,6 +168,8 @@ export async function callVercelGateway(opts: {
 
 // ── INTELLIGENT CALL — routes to Vercel if key exists, falls back to Base44 ──
 // This is the main entry point for all AI calls in the system.
+// Uses AI_GATEWAY_API_KEY (the standard Vercel env var) with fallback to
+// VERCEL_AI_GATEWAY_KEY for backward compatibility.
 export async function callAI(base44, opts: {
   vercelKey?: string | null;
   taskType: TaskType;

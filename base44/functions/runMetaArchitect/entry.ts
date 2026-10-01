@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
+import { secrets } from 'base44:runtime';
 import { ToolLoopAgent, tool, stepCountIs, hasToolCall } from 'npm:ai@7.0.16';
 import { createOpenAICompatible } from 'npm:@ai-sdk/openai-compatible@3.0.5';
 import { z } from 'npm:zod@4.4.3';
@@ -22,13 +23,25 @@ export default async function(req) {
     const trace = [];
     const log = (stage, detail) => trace.push({ stage, ...detail, at: new Date().toISOString() });
 
-    // Connect to the platform AI gateway (same models, same credit quota, no API key)
-    const { baseURL, token, headers } = base44.asServiceRole.aiGateway.connection();
-    const models = createOpenAICompatible({ name: 'base44', baseURL, apiKey: token, headers });
+    // Connect to Vercel AI Gateway using the team API key (no Base44 credits).
+    // Falls back to the Base44 platform AI gateway if no key is set.
+    const aiKey = secrets.get('AI_GATEWAY_API_KEY') || secrets.get('VERCEL_AI_GATEWAY_KEY');
+    let models;
+    if (aiKey) {
+      models = createOpenAICompatible({
+        name: 'vercel-ai-gateway',
+        baseURL: 'https://ai-gateway.vercel.sh/v1',
+        apiKey: aiKey,
+      });
+    } else {
+      const { baseURL, token, headers } = base44.asServiceRole.aiGateway.connection();
+      models = createOpenAICompatible({ name: 'base44', baseURL, apiKey: token, headers });
+    }
 
     // TOOLS — real, scoped to this app's data. The agent decides which to call and in what order.
+    const modelId = aiKey ? 'anthropic/claude-sonnet-4' : 'automatic';
     const agent = new ToolLoopAgent({
-      model: models('automatic'),
+      model: models(modelId),
       instructions: `You are the Meta Architect, Xtreme AI's apex autonomous agent. You operate a real tool loop: inspect state, decide, act, verify. You are not a chatbot — every response should be backed by tool calls that do real work.
 
 Operating model:
