@@ -134,6 +134,25 @@ export default async function(req) {
               else if (emailResult.skipped) emailsSkipped++;
               return { email: emailResult };
 
+            } else if (task.task_type === 'build_system') {
+              // System build — parse the spec from description, call MetaArchitect to plan + generate
+              let spec = {};
+              try { spec = JSON.parse(task.description || '{}'); } catch (e) { spec = {}; }
+              const goal = spec.what_to_build || spec.title || 'Build system';
+              const res = await withRetry(() =>
+                base44.asServiceRole.functions.invoke('runMetaArchitect', { goal, spec }),
+                { retries: 1 }
+              );
+              const result = res.data?.result || {};
+              reportData = { type: 'System Build', domain: spec.title, healthScore: result.health_score, ...result };
+              // Update the SystemBuild record if we have the id
+              if (spec.build_id) {
+                await base44.asServiceRole.entities.SystemBuild.update(spec.build_id, {
+                  status: result.mission_brief ? 'building' : 'planning',
+                  result: result.mission_brief ? JSON.stringify(result.mission_brief).slice(0, 1000) : null
+                }).catch(() => {});
+              }
+              return { build: result };
             } else {
               reportData = { type: task.task_type || 'generic', note: 'executed' };
               return { note: 'executed', task_type: task.task_type };

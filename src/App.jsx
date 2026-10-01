@@ -17,6 +17,7 @@ import DomainRegistry from '@/pages/DomainRegistry';
 import AutonomousMission from '@/pages/AutonomousMission';
 import MetaArchitect from '@/pages/MetaArchitect';
 import MissionControl from '@/pages/MissionControl';
+import SystemFactory from '@/pages/SystemFactory';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
         <Route path="/mission" element={<AutonomousMission />} />
         <Route path="/architect" element={<MetaArchitect />} />
         <Route path="/mission-control" element={<MissionControl />} />
+        <Route path="/factory" element={<SystemFactory />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

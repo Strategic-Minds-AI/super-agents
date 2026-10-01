@@ -1,0 +1,88 @@
+{
+  "name": "SystemBuild",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title",
+      "description": "Name of the website or system to build"
+    },
+    "build_type": {
+      "type": "string",
+      "enum": [
+        "website",
+        "web_app",
+        "landing_page",
+        "api",
+        "automation",
+        "dashboard",
+        "tool",
+        "system"
+      ],
+      "default": "website",
+      "title": "Build Type"
+    },
+    "what_to_build": {
+      "type": "string",
+      "title": "What to Build",
+      "description": "Describe exactly what you want built"
+    },
+    "how_it_looks": {
+      "type": "string",
+      "title": "How It Looks",
+      "description": "Design style, colors, brand aesthetic, layout"
+    },
+    "how_it_functions": {
+      "type": "string",
+      "title": "How It Functions",
+      "description": "Features, flows, behaviors, interactions"
+    },
+    "what_it_connects_to": {
+      "type": "string",
+      "title": "What It Connects To",
+      "description": "Integrations, APIs, data sources, external services"
+    },
+    "what_it_says": {
+      "type": "string",
+      "title": "What It Says",
+      "description": "Content, copy, messaging, tone of voice"
+    },
+    "how_it_operates": {
+      "type": "string",
+      "title": "How It Operates",
+      "description": "Autonomous behaviors, schedules, triggers, workflows"
+    },
+    "deliver_to": {
+      "type": "string",
+      "title": "Deliver To",
+      "description": "Where to deliver: GitHub repo, Railway, domain URL, email"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "spec_submitted",
+        "planning",
+        "building",
+        "deploying",
+        "delivered",
+        "failed"
+      ],
+      "default": "spec_submitted",
+      "title": "Status"
+    },
+    "result": {
+      "type": "string",
+      "title": "Result / Delivery URL",
+      "description": "The delivered URL, repo link, or build output"
+    },
+    "task_id": {
+      "type": "string",
+      "title": "Linked AgentTask ID"
+    }
+  },
+  "required": [
+    "title",
+    "build_type",
+    "what_to_build"
+  ]
+}
