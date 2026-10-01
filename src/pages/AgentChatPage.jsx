@@ -8,7 +8,9 @@ const LABELS = {
   code_architect: "Code Architect",
   social_strategist: "Social Strategist",
   sales_engine: "Sales Engine",
-  brand_guardian: "Brand Guardian"
+  brand_guardian: "Brand Guardian",
+  replicator: "The Replicator",
+  swarm: "The Swarm"
 };
 
 export default function AgentChatPage() {

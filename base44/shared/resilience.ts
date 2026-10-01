@@ -139,12 +139,15 @@ export async function sendGmailReport(base44, { to, subject, html, text }) {
 // ── 6. SAFE GMAIL SEND (with circuit breaker) ──
 // Wraps sendGmailReport with retry + circuit breaker.
 // If the breaker is tripped, returns { skipped: true } instead of throwing.
-export async function safeSendGmail(base44, breaker, { to, subject, body }) {
+export async function safeSendGmail(base44, breaker, { to, subject, html, text, body }) {
   if (breaker.isTripped()) {
     return { skipped: true, reason: 'circuit_breaker_tripped', failureCount: breaker.failureCount() };
   }
   try {
-    const result = await withRetry(() => sendGmailReport(base44, { to, subject, body }), { retries: 2 });
+    // Callers pass { html, text } from buildReportEmail; legacy callers may pass { body }.
+    // sendGmailReport expects { html, text } — forward whichever is provided.
+    const payload = html || text ? { to, subject, html, text } : { to, subject, html: body, text: body };
+    const result = await withRetry(() => sendGmailReport(base44, payload), { retries: 2 });
     breaker.recordSuccess();
     return { sent: true, ...result };
   } catch (e) {

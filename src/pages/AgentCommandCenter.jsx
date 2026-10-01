@@ -15,23 +15,33 @@ const AGENTS = [
   },
   {
     name: "code_architect", label: "Code Architect", icon: "⚙️", category: "Build",
-    description: "Elite staff-engineer pair. Writes, reviews, refactors, debugs and ships production code across the full stack.",
-    skills: ["React", "TypeScript", "Python", "Refactor", "Debug", "Tests"]
+    description: "Elite staff-engineer pair. Writes, reviews, refactors, debugs and ships production code across the full stack. Creates SystemBuild records and dispatches build tasks.",
+    skills: ["React", "TypeScript", "Python", "Refactor", "Debug", "SystemBuild", "Tests"]
   },
   {
     name: "social_strategist", label: "Social Strategist", icon: "📣", category: "Grow",
-    description: "Owns the full social lifecycle — strategy, platform-native content, calendars, engagement playbooks and performance analysis.",
-    skills: ["Instagram", "TikTok", "LinkedIn", "Content", "Calendar", "Engagement"]
+    description: "Owns the full social lifecycle — strategy, platform-native content, calendars, engagement playbooks and performance analysis. Dispatches social automation tasks.",
+    skills: ["Instagram", "TikTok", "LinkedIn", "Content", "Calendar", "Engagement", "Automation"]
   },
   {
     name: "sales_engine", label: "Sales Engine", icon: "🚀", category: "Grow",
-    description: "Revenue super-agent from prospect to closed deal — ICPs, outreach sequences, qualification, pipeline, follow-up and closing playbooks.",
-    skills: ["Outbound", "Sequences", "MEDDIC", "Pipeline", "Forecasting", "Closing"]
+    description: "Revenue super-agent from prospect to closed deal — ICPs, outreach sequences, qualification, pipeline, follow-up and closing playbooks. Dispatches outreach automation tasks.",
+    skills: ["Outbound", "Sequences", "MEDDIC", "Pipeline", "Forecasting", "Closing", "Automation"]
   },
   {
     name: "brand_guardian", label: "Brand Guardian", icon: "✦", category: "Discover",
-    description: "Protects and amplifies the brand — voice, messaging, content strategy, copywriting and creative direction across every touchpoint.",
-    skills: ["Voice", "Copy", "Content", "Positioning", "Style Guide"]
+    description: "Protects and amplifies the brand — voice, messaging, content strategy, copywriting and creative direction across every touchpoint. Dispatches content production tasks.",
+    skills: ["Voice", "Copy", "Content", "Positioning", "Style Guide", "Audit"]
+  },
+  {
+    name: "replicator", label: "The Replicator", icon: "🧬", category: "Apex",
+    description: "Fleet cloning super-agent. Clones and deploys the entire Xtreme AI agent architecture to new domains, systems, and Base44 apps — at any scale. Provisions SystemBuilds, launches BatchOperations, and dispatches replication tasks.",
+    skills: ["Clone", "Provision", "Batch Deploy", "Blueprint", "Scale", "Replicate"]
+  },
+  {
+    name: "swarm", label: "The Swarm", icon: "🐝", category: "Apex",
+    description: "Parallel coordination super-agent. Takes a single goal, splits it into independent subtasks, dispatches them across the specialist fleet simultaneously, aggregates results, and reports a unified output. Maximum throughput.",
+    skills: ["Parallel", "Decompose", "Dispatch All", "Aggregate", "Throughput", "Scale"]
   }
 ];
 
@@ -58,6 +68,8 @@ export default function AgentCommandCenter() {
             <button onClick={() => navigate("/mission-control")} className="xa-btn-outline">⚡ Mission Control</button>
             <button onClick={() => navigate("/mission")} className="xa-btn-outline">Growth Operator mission</button>
             <button onClick={() => navigate("/agents/growth_operator")} className="xa-btn-outline">Chat Growth Operator</button>
+            <button onClick={() => navigate("/agents/replicator")} className="xa-btn-outline">🧬 Chat Replicator</button>
+            <button onClick={() => navigate("/agents/swarm")} className="xa-btn-outline">🐝 Chat Swarm</button>
             <button onClick={() => navigate("/domains")} className="xa-btn-outline">Domain Registry</button>
           </div>
         </div>
