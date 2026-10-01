@@ -14,6 +14,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import AgentCommandCenter from '@/pages/AgentCommandCenter';
 import AgentChatPage from '@/pages/AgentChatPage';
 import DomainRegistry from '@/pages/DomainRegistry';
+import AutonomousMission from '@/pages/AutonomousMission';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -49,6 +50,7 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<AgentCommandCenter />} />
         <Route path="/agents/:agentName" element={<AgentChatPage />} />
         <Route path="/domains" element={<DomainRegistry />} />
+        <Route path="/mission" element={<AutonomousMission />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

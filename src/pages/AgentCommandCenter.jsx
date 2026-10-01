@@ -50,7 +50,8 @@ export default function AgentCommandCenter() {
           <h1 className="font-heading font-black text-4xl md:text-5xl text-black mt-4 leading-tight">Autonomous Agent Command Center</h1>
           <p className="text-lg text-black/60 mt-4 max-w-2xl">A fleet of super-agents engineered like GPT — one for every stage of your business flow. Launch any agent, give it a goal, and it operates end to end.</p>
           <div className="flex flex-wrap gap-3 mt-8">
-            <button onClick={() => navigate("/agents/growth_operator")} className="xa-btn-primary">Launch Growth Operator</button>
+            <button onClick={() => navigate("/mission")} className="xa-btn-primary">▶ Run autonomous mission</button>
+            <button onClick={() => navigate("/agents/growth_operator")} className="xa-btn-outline">Chat Growth Operator</button>
             <button onClick={() => navigate("/domains")} className="xa-btn-outline">Domain Registry</button>
           </div>
         </div>
