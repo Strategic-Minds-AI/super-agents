@@ -51,6 +51,7 @@ export default function AgentCommandCenter() {
           <p className="text-lg text-black/60 mt-4 max-w-2xl">A fleet of super-agents engineered like GPT — one for every stage of your business flow. Launch any agent, give it a goal, and it operates end to end.</p>
           <div className="flex flex-wrap gap-3 mt-8">
             <button onClick={() => navigate("/architect")} className="xa-btn-primary">✦ Launch Meta Architect</button>
+            <button onClick={() => navigate("/mission-control")} className="xa-btn-primary">⚡ Mission Control</button>
             <button onClick={() => navigate("/mission")} className="xa-btn-outline">Growth Operator mission</button>
             <button onClick={() => navigate("/agents/growth_operator")} className="xa-btn-outline">Chat Growth Operator</button>
             <button onClick={() => navigate("/domains")} className="xa-btn-outline">Domain Registry</button>
