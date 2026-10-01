@@ -32,15 +32,26 @@ export default async function(req) {
 
     const authHeader = `sso-key ${apiKey}:${apiSecret}`;
 
-    // Step 1: Check availability + price
-    const checkRes = await fetch(
-      `https://api.godaddy.com/v1/domains/available?domain=${encodeURIComponent(domain)}&checkType=FAST`,
-      { headers: { Authorization: authHeader, Accept: 'application/json' }, signal: AbortSignal.timeout(10000) }
-    );
+    // Try production endpoint first, fall back to OTE (test) endpoint
+    const ENDPOINTS = ['https://api.godaddy.com/v1', 'https://api.ote-godaddy.com/v1'];
+    let baseUrl = ENDPOINTS[0];
+    let checkRes;
+
+    for (const ep of ENDPOINTS) {
+      checkRes = await fetch(
+        `${ep}/domains/available?domain=${encodeURIComponent(domain)}&checkType=FAST`,
+        { headers: { Authorization: authHeader, Accept: 'application/json' }, signal: AbortSignal.timeout(10000) }
+      );
+      if (checkRes.ok || checkRes.status === 404) { baseUrl = ep; break; }
+      if (checkRes.status !== 401) break; // non-auth error, stop trying
+    }
 
     if (!checkRes.ok) {
       const errText = await checkRes.text().catch(() => '');
-      return Response.json({ error: `GoDaddy check error: ${checkRes.status} ${errText.slice(0, 200)}` }, { status: 502 });
+      const hint = checkRes.status === 401
+        ? ' — GoDaddy API keys rejected on both production and OTE endpoints. Verify your GODADDY_API_KEY and GODADDY_API_SECRET are correct (not swapped), and check if they are OTE test keys vs production keys.'
+        : '';
+      return Response.json({ error: `GoDaddy check error: ${checkRes.status} ${errText.slice(0, 200)}${hint}` }, { status: 502 });
     }
 
     const availability = await checkRes.json();
@@ -105,7 +116,7 @@ export default async function(req) {
       privacy: true
     };
 
-    const buyRes = await fetch('https://api.godaddy.com/v1/domains', {
+    const buyRes = await fetch(`${baseUrl}/domains`, {
       method: 'POST',
       headers: { Authorization: authHeader, 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify(purchaseBody),

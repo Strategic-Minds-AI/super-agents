@@ -50,33 +50,32 @@ export default async function(req) {
     let aiProvider = 'base44_invoke_llm';
 
     if (vercelKey) {
-      try {
-        const res = await fetch('https://gateway.ai.vercel.app/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${vercelKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              { role: 'system', content: 'You are a website template generator. Return only valid JSON, no markdown.' },
-              { role: 'user', content: prompt + '\n\nReturn a JSON object with these exact fields: title, what_to_build, how_it_looks, how_it_functions, what_it_connects_to, what_it_says, how_it_operates, deliver_to.' }
-            ],
-            response_format: { type: 'json_object' }
-          }),
-          signal: AbortSignal.timeout(30000)
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const content = data.choices?.[0]?.message?.content;
-          template = JSON.parse(content);
-          aiProvider = 'vercel_ai_gateway';
-        }
-      } catch (e) { /* fall through to InvokeLLM */ }
-    }
-
-    if (!template) {
+      const res = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${vercelKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'You are a website template generator. Return only valid JSON, no markdown.' },
+            { role: 'user', content: prompt + '\n\nReturn a JSON object with these exact fields: title, what_to_build, how_it_looks, how_it_functions, what_it_connects_to, what_it_says, how_it_operates, deliver_to.' }
+          ],
+          response_format: { type: 'json_object' }
+        }),
+        signal: AbortSignal.timeout(30000)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        template = JSON.parse(content);
+        aiProvider = 'vercel_ai_gateway';
+      } else {
+        const errText = await res.text().catch(() => '');
+        return Response.json({ error: `Vercel AI Gateway error: ${res.status} ${errText.slice(0, 200)}` }, { status: 502 });
+      }
+    } else {
       const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
         prompt,
         response_json_schema: responseSchema
