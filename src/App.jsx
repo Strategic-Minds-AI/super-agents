@@ -15,6 +15,7 @@ import AgentCommandCenter from '@/pages/AgentCommandCenter';
 import AgentChatPage from '@/pages/AgentChatPage';
 import DomainRegistry from '@/pages/DomainRegistry';
 import AutonomousMission from '@/pages/AutonomousMission';
+import MetaArchitect from '@/pages/MetaArchitect';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -51,6 +52,7 @@ const AuthenticatedApp = () => {
         <Route path="/agents/:agentName" element={<AgentChatPage />} />
         <Route path="/domains" element={<DomainRegistry />} />
         <Route path="/mission" element={<AutonomousMission />} />
+        <Route path="/architect" element={<MetaArchitect />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
