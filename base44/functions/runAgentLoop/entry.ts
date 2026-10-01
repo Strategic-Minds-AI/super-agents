@@ -138,6 +138,18 @@ export default async function(req) {
               // System build — parse the spec from description, call MetaArchitect to plan + generate
               let spec = {};
               try { spec = JSON.parse(task.description || '{}'); } catch (e) { spec = {}; }
+              // FREE MODE: skip the LLM call, use the template spec directly — zero credits
+              if (spec.free_mode) {
+                const result = { mission_brief: spec, health_score: 100, free_mode: true, note: 'Template used directly — no LLM call' };
+                reportData = { type: 'System Build (Free)', domain: spec.title, ...result };
+                if (spec.build_id) {
+                  await base44.asServiceRole.entities.SystemBuild.update(spec.build_id, {
+                    status: 'building',
+                    result: 'Template applied — no LLM planning needed'
+                  }).catch(() => {});
+                }
+                return { build: result };
+              }
               const goal = spec.what_to_build || spec.title || 'Build system';
               const res = await withRetry(() =>
                 base44.asServiceRole.functions.invoke('runMetaArchitect', { goal, spec }),

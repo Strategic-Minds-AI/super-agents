@@ -51,10 +51,11 @@ export default async function(req) {
       if (!Array.isArray(vars)) vars = [];
     } catch (e) { vars = []; }
 
+    const freeMode = body.free_mode !== false;
     const phases = {
       google_connect: body.google_connect !== false,
       social_connect: body.social_connect !== false,
-      video_generate: body.video_generate === true,
+      video_generate: !freeMode && body.video_generate === true,
       content_optimize: body.content_optimize !== false
     };
 
@@ -86,7 +87,7 @@ export default async function(req) {
         agent_name: 'meta_architect',
         task_type: 'build_system',
         title: `Build: ${spec.title}`,
-        description: JSON.stringify({ ...spec, build_index: i, domain }),
+        description: JSON.stringify({ ...spec, build_index: i, domain, free_mode: freeMode }),
         priority: 'high',
         autonomous: true,
         status: 'pending'

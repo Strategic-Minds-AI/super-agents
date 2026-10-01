@@ -8,6 +8,7 @@ import TemplateGenerator from "@/components/factory/TemplateGenerator";
 import RepoGenerator from "@/components/factory/RepoGenerator";
 import SandboxPanel from "@/components/factory/SandboxPanel";
 import IntegrationStack from "@/components/factory/IntegrationStack";
+import CostOptimizer from "@/components/factory/CostOptimizer";
 
 export default function WebsiteFactory() {
   const navigate = useNavigate();
@@ -15,13 +16,16 @@ export default function WebsiteFactory() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [stage, setStage] = useState("discover");
+  const [freeMode, setFreeMode] = useState(true);
 
   const launchFull = async () => {
     setLaunching(true); setError(null); setResult(null);
     try {
       const res = await base44.functions.invoke("runBatchOperation", {
-        name: "Factory Pipeline", batch_size: 10, template: {}, variables: "[]", deploy_targets: ["railway", "github"],
-        google_connect: true, social_connect: true, video_generate: false, content_optimize: true
+        name: "Factory Pipeline", batch_size: 10, template: {}, variables: "[]",
+        deploy_targets: freeMode ? ["github"] : ["railway", "github"],
+        google_connect: true, social_connect: true, video_generate: !freeMode, content_optimize: true,
+        free_mode: freeMode
       });
       setResult(res.data || res);
     } catch (e) { setError(e.message); }
@@ -44,6 +48,7 @@ export default function WebsiteFactory() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+        <CostOptimizer freeMode={freeMode} setFreeMode={setFreeMode} />
         <PipelineOverview activeStage={stage} />
         <IntegrationStack />
         <DomainDiscovery onDiscovered={() => setStage("buy")} />
