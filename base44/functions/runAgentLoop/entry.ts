@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
+import { secrets } from 'base44:runtime';
 import {
   withRetry, withTimeout, recoverStuckTasks, createCircuitBreaker, safeSendGmail
 } from '../../shared/resilience.ts';
@@ -12,10 +13,20 @@ import { buildReportEmail } from '../../shared/emailTemplate.ts';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-
     const body = await req.json().catch(() => ({}));
+
+    // ── AUTH: two modes ──
+    // 1. Worker mode: caller sends worker_secret matching the app secret →
+    //    skip user auth, run as service role (the loop already uses asServiceRole
+    //    for all entity ops). This is how the local/Railway worker calls us.
+    // 2. User mode: normal auth.me() check, used by the Mission Control UI.
+    const expectedSecret = secrets.get('WORKER_SECRET');
+    const isWorker = !!(body?.worker_secret && expectedSecret && body.worker_secret === expectedSecret);
+    if (!isWorker) {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const maxCycles = Math.min(body?.max_cycles || 5, 10);
     const reportEmail = body?.report_email || null; // optional override
     const trace = [];
