@@ -1,0 +1,98 @@
+{
+  "name": "BatchOperation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Batch Name",
+      "description": "A label for this batch operation"
+    },
+    "batch_size": {
+      "type": "number",
+      "default": 1,
+      "title": "Batch Size",
+      "description": "Number of sites to build in this batch"
+    },
+    "template_spec": {
+      "type": "string",
+      "title": "Template Spec",
+      "description": "JSON of the base spec template for each site"
+    },
+    "variables": {
+      "type": "string",
+      "title": "Variables",
+      "description": "JSON array of per-site variable data"
+    },
+    "deploy_targets": {
+      "type": "string",
+      "title": "Deploy Targets",
+      "description": "Comma-separated: railway, vercel, github, custom"
+    },
+    "google_connect": {
+      "type": "boolean",
+      "default": true,
+      "title": "Auto-Connect Google"
+    },
+    "social_connect": {
+      "type": "boolean",
+      "default": true,
+      "title": "Auto-Connect Social"
+    },
+    "video_generate": {
+      "type": "boolean",
+      "default": false,
+      "title": "Auto-Generate Videos"
+    },
+    "content_optimize": {
+      "type": "boolean",
+      "default": true,
+      "title": "Auto-Optimize Content"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "dispatching",
+        "running",
+        "complete",
+        "failed"
+      ],
+      "default": "queued",
+      "title": "Status"
+    },
+    "progress": {
+      "type": "number",
+      "default": 0,
+      "title": "Progress %"
+    },
+    "sites_built": {
+      "type": "number",
+      "default": 0,
+      "title": "Sites Built"
+    },
+    "sites_deployed": {
+      "type": "number",
+      "default": 0,
+      "title": "Sites Deployed"
+    },
+    "videos_generated": {
+      "type": "number",
+      "default": 0,
+      "title": "Videos Generated"
+    },
+    "social_posts": {
+      "type": "number",
+      "default": 0,
+      "title": "Social Posts"
+    },
+    "task_count": {
+      "type": "number",
+      "default": 0,
+      "title": "Total Tasks Dispatched"
+    }
+  },
+  "required": [
+    "name",
+    "batch_size"
+  ]
+}

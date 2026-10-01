@@ -48,6 +48,10 @@ export default async function(req) {
         // Idempotency: re-check status before claiming (two heartbeats might overlap)
         if (task.status !== 'pending') continue;
 
+        // Skip batch task types — the worker (runAgentLoop) handles these with full handlers
+        const BATCH_TYPES = ['build_system', 'google_connect', 'social_connect', 'video_generate', 'content_optimize'];
+        if (task.task_type && BATCH_TYPES.includes(task.task_type)) continue;
+
         await base44.asServiceRole.entities.AgentTask.update(task.id, { status: 'in_progress' });
 
         let outcome = await withTimeout(
