@@ -4,6 +4,11 @@ import AgentCard from "@/components/agents/AgentCard";
 
 const AGENTS = [
   {
+    name: "orchestrator", label: "The Orchestrator", icon: "🧠", category: "Apex", apex: true,
+    description: "The apex master agent. Give it any business goal — it decomposes the work across stages, dispatches the specialist agents via the action queue, sequences the critical path, and reports a unified mission brief.",
+    skills: ["Decompose", "Dispatch", "Sequence", "Track", "Escalate", "Mission Control"]
+  },
+  {
     name: "growth_operator", label: "Growth Operator", icon: "🛡️", category: "Operate", flagship: true,
     description: "Autonomous Google growth engine — takes any URL end-to-end through Search Console, GA4, GTM, sitemaps, index coverage, competitor intelligence and continuous monitoring.",
     skills: ["Search Console", "GA4", "GTM", "Sitemaps", "Indexing", "Competitors", "Analytics"]
@@ -30,7 +35,7 @@ const AGENTS = [
   }
 ];
 
-const CATEGORIES = ["All", "Discover", "Build", "Grow", "Operate"];
+const CATEGORIES = ["All", "Apex", "Discover", "Build", "Grow", "Operate"];
 
 export default function AgentCommandCenter() {
   const navigate = useNavigate();

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import AgentChat from "@/components/agents/AgentChat";
 
 const LABELS = {
+  orchestrator: "The Orchestrator",
   growth_operator: "Growth Operator",
   code_architect: "Code Architect",
   social_strategist: "Social Strategist",
