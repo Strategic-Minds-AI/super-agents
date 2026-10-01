@@ -71,13 +71,13 @@ export function createCircuitBreaker(threshold = 3) {
 
 // ── 5. GMAIL SENDING — the "act" step ──
 // Sends a real email via the authorized Gmail connector.
-// Uses UTF-8-safe base64url encoding for the RFC 2822 raw message.
-export async function sendGmailReport(base44, { to, subject, body }) {
+// Builds a multipart/alternative MIME message (HTML + plain-text fallback)
+// with RFC 2047 encoded subject for non-ASCII safety.
+export async function sendGmailReport(base44, { to, subject, html, text }) {
   const conn = await base44.asServiceRole.connectors.getConnection('gmail');
   const accessToken = conn.accessToken;
 
-  // Get the sender's email via the Google userinfo endpoint (works with the `email` scope,
-  // unlike the Gmail profile API which needs gmail.readonly)
+  // Get the sender's email via the Google userinfo endpoint (works with the `email` scope)
   const profileRes = await withRetry(() =>
     fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${accessToken}` }
@@ -87,18 +87,35 @@ export async function sendGmailReport(base44, { to, subject, body }) {
   const profile = await profileRes.json();
   const from = profile.email;
 
-  // Build RFC 2822 message
+  // RFC 2047 encode the subject (UTF-8 base64) for emoji/non-ASCII safety
+  const encodedSubject = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
+
+  // Multipart/alternative boundary
+  const boundary = `xa_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
   const message = [
     `To: ${to}`,
     `From: ${from}`,
-    `Subject: ${subject}`,
-    `Content-Type: text/plain; charset=utf-8`,
+    `Subject: ${encodedSubject}`,
     `MIME-Version: 1.0`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
     ``,
-    body
+    `--${boundary}`,
+    `Content-Type: text/plain; charset=utf-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    btoa(unescape(encodeURIComponent(text || ''))),
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/html; charset=utf-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    btoa(unescape(encodeURIComponent(html || ''))),
+    ``,
+    `--${boundary}--`,
   ].join('\r\n');
 
-  // UTF-8-safe base64url encoding
+  // UTF-8-safe base64url encoding for the Gmail API raw field
   const encoded = btoa(unescape(encodeURIComponent(message)))
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
