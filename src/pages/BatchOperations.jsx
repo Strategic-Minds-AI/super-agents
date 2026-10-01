@@ -36,7 +36,10 @@ export default function BatchOperations() {
             <span className="xa-pill-badge">BATCH OPERATIONS</span>
             <h1 className="font-heading font-black text-xl sm:text-2xl text-black mt-1 truncate">1000 Sites. One Day. One Page.</h1>
           </div>
-          <button onClick={() => navigate("/factory")} className="xa-btn-outline shrink-0">← Factory</button>
+          <div className="flex gap-2 shrink-0">
+            <button onClick={() => navigate("/website-factory")} className="xa-btn-primary text-xs px-3 py-2">🏭 Factory</button>
+            <button onClick={() => navigate("/factory")} className="xa-btn-outline text-xs px-3 py-2">← System</button>
+          </div>
         </div>
       </header>
 

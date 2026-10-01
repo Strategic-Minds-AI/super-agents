@@ -53,6 +53,7 @@ export default function AgentCommandCenter() {
             <button onClick={() => navigate("/architect")} className="xa-btn-primary">✦ Launch Meta Architect</button>
             <button onClick={() => navigate("/factory")} className="xa-btn-primary">🏗️ System Factory</button>
             <button onClick={() => navigate("/batch")} className="xa-btn-primary">⚡ Batch Operations</button>
+            <button onClick={() => navigate("/website-factory")} className="xa-btn-primary">🏭 Website Factory</button>
             <button onClick={() => navigate("/mission-control")} className="xa-btn-outline">⚡ Mission Control</button>
             <button onClick={() => navigate("/mission")} className="xa-btn-outline">Growth Operator mission</button>
             <button onClick={() => navigate("/agents/growth_operator")} className="xa-btn-outline">Chat Growth Operator</button>
