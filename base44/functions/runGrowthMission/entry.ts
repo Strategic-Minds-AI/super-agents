@@ -1,10 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
-// Autonomous code agent: runs a real tool-loop against the AI gateway.
-// No human in the chat. It reads/writes Domain + AgentTask records and runs web research,
-// looping until the mission is complete or the step cap is hit.
-
-const MAX_STEPS = 8;
+// Autonomous code agent — deterministic mode. No LLM, no credits.
+// It performs REAL work: live HTTP fetches + real Domain/AgentTask database writes.
+// Every action is recorded in the trace so you can verify it happened.
 
 export default async function(req) {
   try {
@@ -13,172 +11,127 @@ export default async function(req) {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const targetDomain = (body?.domain || 'benearme.com').trim();
-
-    const { baseURL, token, headers } = base44.asServiceRole.aiGateway.connection();
-    const chatURL = `${baseURL}/chat/completions`;
-
-    // ---- Real tools the agent can call ----
-    const tools = [
-      {
-        type: 'function',
-        function: {
-          name: 'get_domain',
-          description: 'Look up a domain record in the registry by root domain. Returns the record or null.',
-          parameters: { type: 'object', properties: { domain: { type: 'string' } }, required: ['domain'] }
-        }
-      },
-      {
-        type: 'function',
-        function: {
-          name: 'update_domain',
-          description: 'Update a domain record with onboarding state. Call after each pipeline stage.',
-          parameters: {
-            type: 'object',
-            properties: {
-              domain: { type: 'string' },
-              status: { type: 'string', enum: ['onboarding', 'verifying', 'verified', 'active', 'issues', 'paused'] },
-              gsc_property: { type: 'string' },
-              sitemap_url: { type: 'string' },
-              health_score: { type: 'number' },
-              next_action: { type: 'string' },
-              competitors: { type: 'string' }
-            },
-            required: ['domain']
-          }
-        }
-      },
-      {
-        type: 'function',
-        function: {
-          name: 'create_task',
-          description: 'Create an action-queue task dispatched to a specialist agent.',
-          parameters: {
-            type: 'object',
-            properties: {
-              agent_name: { type: 'string' },
-              title: { type: 'string' },
-              task_type: { type: 'string' },
-              priority: { type: 'string', enum: ['low', 'medium', 'high', 'urgent'] },
-              description: { type: 'string' },
-              autonomous: { type: 'boolean' }
-            },
-            required: ['agent_name', 'title', 'task_type', 'priority', 'description', 'autonomous']
-          }
-        }
-      },
-      {
-        type: 'function',
-        function: {
-          name: 'web_research',
-          description: 'Run a live web search (competitor SERP, sitemap discovery, site analysis) and return findings.',
-          parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] }
-        }
-      }
-    ];
-
-    const toolHandlers = {
-      get_domain: async ({ domain }) => {
-        const res = await base44.asServiceRole.entities.Domain.filter({ domain }, { limit: 1 });
-        return res.items?.[0] || null;
-      },
-      update_domain: async (args) => {
-        const existing = await base44.asServiceRole.entities.Domain.filter({ domain: args.domain }, { limit: 1 });
-        const rec = existing.items?.[0];
-        if (!rec) return { error: 'domain not found' };
-        const update = {};
-        for (const k of ['status', 'gsc_property', 'sitemap_url', 'health_score', 'next_action', 'competitors']) {
-          if (args[k] !== undefined) update[k] = args[k];
-        }
-        return await base44.asServiceRole.entities.Domain.update(rec.id, update);
-      },
-      create_task: async (args) => {
-        return await base44.asServiceRole.entities.AgentTask.create({
-          agent_name: args.agent_name,
-          title: args.title,
-          task_type: args.task_type,
-          priority: args.priority,
-          description: args.description,
-          autonomous: args.autonomous,
-          status: 'pending'
-        });
-      },
-      web_research: async ({ query }) => {
-        const r = await base44.asServiceRole.integrations.Core.InvokeLLM({
-          prompt: `Research the following for autonomous domain operations and return concise, structured findings (no fluff): ${query}`,
-          add_context_from_internet: true,
-          model: 'gemini_3_8_flash'
-        });
-        return r;
-      }
-    };
-
-    // ---- The agent loop ----
-    const systemPrompt = `You are the Growth Operator autonomous code agent for Xtreme AI. You run the Google growth pipeline for a domain with NO human in the loop.
-Execute these stages in order, calling a tool for each:
-1. get_domain — load the record for "${targetDomain}".
-2. web_research — find the sitemap URL and robots.txt for the domain.
-3. update_domain — set sitemap_url and status 'verifying'.
-4. web_research — run a SERP/competitor scan for the domain's main keyword.
-5. update_domain — set competitors and next_action, status 'active', health_score based on findings.
-6. create_task — dispatch 'submit_sitemap' to growth_operator (autonomous).
-7. create_task — dispatch 'configure_ga4' to growth_operator (autonomous=false, needs approval).
-After all stages, STOP and do not call more tools. Be efficient: one tool per step.`;
-
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Run the full growth mission for ${targetDomain} now.` }
-    ];
-
+    const targetDomain = (body?.domain || 'benearme.com').trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
     const trace = [];
-    let step = 0;
-    let finalText = '';
 
-    while (step < MAX_STEPS) {
-      step++;
-      const resp = await fetch(chatURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...headers },
-        body: JSON.stringify({ model: 'automatic', messages, tools, tool_choice: 'auto' })
+    const log = (stage, detail) => trace.push({ stage, ...detail });
+
+    // STAGE 1 — Load the domain record from the registry
+    const found = await base44.asServiceRole.entities.Domain.filter({ domain: targetDomain }, { limit: 1 });
+    let domain = found.items?.[0];
+    log('load_domain', { found: !!domain, id: domain?.id || null });
+
+    if (!domain) {
+      domain = await base44.asServiceRole.entities.Domain.create({
+        domain: targetDomain,
+        canonical_url: `https://${targetDomain}`,
+        status: 'onboarding'
       });
-      const data = await resp.json();
-      if (!resp.ok) {
-        return Response.json({ error: 'gateway error', detail: data, step }, { status: 502 });
-      }
-      const msg = data.choices?.[0]?.message;
-      messages.push(msg);
-
-      if (msg.tool_calls && msg.tool_calls.length > 0) {
-        for (const tc of msg.tool_calls) {
-          const args = JSON.parse(tc.function.arguments || '{}');
-          const fn = tc.function.name;
-          let result;
-          try {
-            result = await toolHandlers[fn](args);
-          } catch (e) {
-            result = { error: e.message };
-          }
-          trace.push({ step, tool: fn, args, ok: !result?.error });
-          messages.push({
-            role: 'tool',
-            tool_call_id: tc.id,
-            content: JSON.stringify(result).slice(0, 2000)
-          });
-        }
-        continue; // keep looping while the agent calls tools
-      }
-
-      // No tool calls → agent is done
-      finalText = msg.content || '';
-      break;
+      log('create_domain', { id: domain.id });
     }
+
+    // STAGE 2 — Fetch robots.txt (live HTTP)
+    let robotsStatus = 'unknown';
+    let sitemapUrl = '';
+    try {
+      const r = await fetch(`https://${targetDomain}/robots.txt`, { method: 'GET' });
+      robotsStatus = r.ok ? 'present' : `http_${r.status}`;
+      if (r.ok) {
+        const txt = await r.text();
+        const sm = txt.split('\n').map(l => l.trim()).find(l => /^sitemap:/i.test(l));
+        if (sm) sitemapUrl = sm.replace(/^sitemap:\s*/i, '');
+      }
+    } catch (e) {
+      robotsStatus = `fetch_error: ${e.message}`;
+    }
+    log('fetch_robots', { robotsStatus, sitemapUrl });
+
+    // STAGE 3 — Discover sitemap if robots didn't declare one
+    if (!sitemapUrl) {
+      for (const candidate of [`https://${targetDomain}/sitemap.xml`, `https://${targetDomain}/sitemap_index.xml`]) {
+        try {
+          const r = await fetch(candidate, { method: 'GET' });
+          if (r.ok) { sitemapUrl = candidate; break; }
+        } catch (_) {}
+      }
+    }
+    log('discover_sitemap', { sitemapUrl });
+
+    // STAGE 4 — Count URLs in the sitemap (live HTTP)
+    let urlCount = 0;
+    let sitemapOk = false;
+    if (sitemapUrl) {
+      try {
+        const r = await fetch(sitemapUrl, { method: 'GET' });
+        sitemapOk = r.ok;
+        if (r.ok) {
+          const xml = await r.text();
+          urlCount = (xml.match(/<loc>/g) || []).length;
+        }
+      } catch (e) {
+        sitemapOk = false;
+      }
+    }
+    log('inspect_sitemap', { sitemapOk, urlCount });
+
+    // STAGE 5 — Compute a real health score from findings
+    let health = 0;
+    if (robotsStatus === 'present') health += 25;
+    if (sitemapOk) health += 35;
+    if (urlCount > 0) health += Math.min(20, Math.floor(urlCount / 5));
+    health = Math.min(100, health);
+    log('compute_health', { health });
+
+    // STAGE 6 — Update the Domain record with real findings
+    const updated = await base44.asServiceRole.entities.Domain.update(domain.id, {
+      status: sitemapOk ? 'active' : 'issues',
+      sitemap_url: sitemapUrl || null,
+      robots_status: robotsStatus,
+      health_score: health,
+      next_action: sitemapOk ? 'Submit sitemap to Search Console + configure GA4' : 'Generate and publish a sitemap',
+      last_audit: new Date().toISOString()
+    });
+    log('update_domain', { id: updated.id, status: updated.status, health: updated.health_score });
+
+    // STAGE 7 — Dispatch real tasks to the action queue
+    const task1 = await base44.asServiceRole.entities.AgentTask.create({
+      agent_name: 'growth_operator',
+      title: `Submit sitemap for ${targetDomain}`,
+      task_type: 'submit_sitemap',
+      priority: 'high',
+      description: `Autonomous dispatch: submit ${sitemapUrl || 'pending sitemap'} to Google Search Console for ${targetDomain}.`,
+      autonomous: true,
+      status: 'pending'
+    });
+    log('create_task', { id: task1.id, type: 'submit_sitemap', autonomous: true });
+
+    const task2 = await base44.asServiceRole.entities.AgentTask.create({
+      agent_name: 'growth_operator',
+      title: `Configure GA4 property for ${targetDomain}`,
+      task_type: 'configure_ga4',
+      priority: 'medium',
+      description: `Autonomous dispatch: create GA4 property + web stream for ${targetDomain}. Requires Google API credentials.`,
+      autonomous: false,
+      status: 'pending'
+    });
+    log('create_task', { id: task2.id, type: 'configure_ga4', autonomous: false });
 
     return Response.json({
       domain: targetDomain,
-      steps_executed: step,
-      completed: step < MAX_STEPS,
-      final_summary: finalText,
-      tool_trace: trace
+      autonomous: true,
+      llm_used: false,
+      stages_executed: trace.length,
+      result: {
+        robots_status: robotsStatus,
+        sitemap_url: sitemapUrl,
+        sitemap_ok: sitemapOk,
+        urls_in_sitemap: urlCount,
+        health_score: health,
+        domain_status: updated.status,
+        domain_id: updated.id,
+        tasks_created: [task1.id, task2.id]
+      },
+      trace
     });
   } catch (error) {
     return Response.json({ error: error.message, stack: error.stack }, { status: 500 });
