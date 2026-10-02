@@ -1,9 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
-import { secrets } from 'base44:runtime';
 import {
   withRetry, withTimeout, recoverStuckTasks, createCircuitBreaker, safeSendGmail
 } from '../../shared/resilience.ts';
 import { buildReportEmail } from '../../shared/emailTemplate.ts';
+import { verifySignedWorkerRequest, workerAuthConfigured } from '../../shared/workerAuth.ts';
 
 // HARDENED AUTONOMOUS AGENT LOOP — OBSERVE → DECIDE → ACT → RECORD → REPEAT
 // This version doesn't break: it retries transient failures, recovers stuck
@@ -13,22 +13,35 @@ import { buildReportEmail } from '../../shared/emailTemplate.ts';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json().catch(() => ({}));
+    const rawBody = await req.text();
+    let body = {};
+    try {
+      body = rawBody ? JSON.parse(rawBody) : {};
+    } catch {
+      return Response.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
 
-    // ── AUTH: two modes ──
-    // 1. Worker mode: caller sends worker_secret matching the app secret →
-    //    skip user auth, run as service role (the loop already uses asServiceRole
-    //    for all entity ops). This is how the local/Railway worker calls us.
-    // 2. User mode: normal auth.me() check, used by the Mission Control UI.
-    const expectedSecret = secrets.get('WORKER_SECRET');
-    const isWorker = !!(body?.worker_secret && expectedSecret && body.worker_secret === expectedSecret);
+    const agentName = typeof body?.agent_name === 'string' ? body.agent_name.trim() : '';
+    const workerAuth = await verifySignedWorkerRequest(req, rawBody, agentName);
+    const isWorker = workerAuth.ok;
+
+    // Side-effect-free auth probe. This returns before any AgentTask query.
+    if (body?.auth_probe === true) {
+      return Response.json({
+        worker_auth: isWorker,
+        verifier_configured: workerAuthConfigured(),
+        auth_method: workerAuth.method,
+        key_id: workerAuth.key_id,
+        reason: workerAuth.reason,
+      }, { status: isWorker ? 200 : 401 });
+    }
+
     if (!isWorker) {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const maxCycles = Math.min(body?.max_cycles || 5, 10);
-    const agentName = typeof body?.agent_name === 'string' ? body.agent_name.trim() : '';
     const reportEmail = body?.report_email || null; // optional override
     const trace = [];
     const log = (phase, detail) => trace.push({ phase, ...detail, at: new Date().toISOString() });
