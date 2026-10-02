@@ -26,6 +26,7 @@ if (existsSync(envPath)) {
 // ── Config ──
 const APP_URL = (process.env.APP_URL || 'https://super-agents-zero.base44.app').replace(/\/$/, '');
 const WORKER_SECRET = process.env.WORKER_SECRET;
+const AGENT_NAME = (process.env.AGENT_NAME || '').trim();
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '60000', 10);
 const MAX_CYCLES = parseInt(process.env.MAX_CYCLES || '5', 10);
 const REPORT_EMAIL = process.env.REPORT_EMAIL || '';
@@ -65,6 +66,7 @@ function banner() {
 ${c.dim}  App:        ${APP_URL}
   Interval:   ${POLL_INTERVAL}ms (${POLL_INTERVAL / 1000}s)
   Max cycles: ${MAX_CYCLES}
+  Agent lane:  ${AGENT_NAME || '(global)'}
   Report to:  ${REPORT_EMAIL || '(none)'}
   Log file:   ${LOG_FILE}${c.reset}
 `);
@@ -79,7 +81,8 @@ async function runOnce() {
   const payload = {
     worker_secret: WORKER_SECRET,
     max_cycles: MAX_CYCLES,
-    trigger: 'local_worker',
+    agent_name: AGENT_NAME || undefined,
+    trigger: 'railway_worker',
   };
   if (REPORT_EMAIL) payload.report_email = REPORT_EMAIL;
 
