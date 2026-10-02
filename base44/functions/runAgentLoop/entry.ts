@@ -20,8 +20,24 @@ export default async function(req) {
     //    skip user auth, run as service role (the loop already uses asServiceRole
     //    for all entity ops). This is how the local/Railway worker calls us.
     // 2. User mode: normal auth.me() check, used by the Mission Control UI.
-    const expectedSecret = secrets.get('WORKER_SECRET');
-    const isWorker = !!(body?.worker_secret && expectedSecret && body.worker_secret === expectedSecret);
+    const runtimeSecret = secrets.get('WORKER_SECRET');
+    const envSecret = Deno.env.get('WORKER_SECRET');
+    const runtimeMatch = !!(body?.worker_secret && runtimeSecret && body.worker_secret === runtimeSecret);
+    const envMatch = !!(body?.worker_secret && envSecret && body.worker_secret === envSecret);
+    const isWorker = runtimeMatch || envMatch;
+
+    // Side-effect-free external worker authentication probe.
+    // Returns booleans only; never returns secret material.
+    if (body?.auth_probe === true) {
+      return Response.json({
+        worker_auth: isWorker,
+        runtime_secret_present: !!runtimeSecret,
+        env_secret_present: !!envSecret,
+        runtime_match: runtimeMatch,
+        env_match: envMatch,
+      }, { status: isWorker ? 200 : 401 });
+    }
+
     if (!isWorker) {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
