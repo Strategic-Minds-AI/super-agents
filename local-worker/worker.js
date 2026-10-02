@@ -30,6 +30,8 @@ const AGENT_NAME = (process.env.AGENT_NAME || '').trim();
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '60000', 10);
 const MAX_CYCLES = parseInt(process.env.MAX_CYCLES || '5', 10);
 const REPORT_EMAIL = process.env.REPORT_EMAIL || '';
+const FUNCTIONS_VERSION = (process.env.BASE44_FUNCTIONS_VERSION || '').trim();
+const AUTH_CANARY = process.env.AUTH_CANARY === '1';
 const LOG_FILE = process.env.LOG_FILE || join(__dirname, 'worker.log');
 
 if (!WORKER_SECRET) {
@@ -68,8 +70,37 @@ ${c.dim}  App:        ${APP_URL}
   Max cycles: ${MAX_CYCLES}
   Agent lane:  ${AGENT_NAME || '(global)'}
   Report to:  ${REPORT_EMAIL || '(none)'}
+  Functions:  ${FUNCTIONS_VERSION || '(default)'}
+  Mode:       ${AUTH_CANARY ? 'auth_canary' : 'agent_loop'}
   Log file:   ${LOG_FILE}${c.reset}
 `);
+}
+
+function requestHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  if (FUNCTIONS_VERSION) headers['Base44-Functions-Version'] = FUNCTIONS_VERSION;
+  return headers;
+}
+
+async function runAuthCanary() {
+  try {
+    const res = await fetch(`${APP_URL}/functions/runDomainBuyer`, {
+      method: 'POST',
+      headers: requestHeaders(),
+      body: JSON.stringify({ worker_secret: WORKER_SECRET }),
+    });
+    const data = await res.json().catch(() => ({}));
+    const pass = res.status === 400 && data.error === 'domain required';
+    if (pass) {
+      log(`✓ AUTH_CANARY_PASS · functions=${FUNCTIONS_VERSION || 'default'}`, c.green);
+      return true;
+    }
+    log(`✗ AUTH_CANARY_FAIL · HTTP ${res.status} · ${String(data.error || 'unexpected_response').slice(0, 160)}`, c.red);
+    return false;
+  } catch (e) {
+    log(`✗ AUTH_CANARY_ERROR · ${e.message}`, c.red);
+    return false;
+  }
 }
 
 // ── Single agent-loop invocation ──
@@ -89,7 +120,7 @@ async function runOnce() {
   try {
     const res = await fetch(`${APP_URL}/functions/runAgentLoop`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: requestHeaders(),
       body: JSON.stringify(payload),
     });
 
@@ -145,6 +176,15 @@ log('Worker started. Press Ctrl+C to stop. Running autonomously.', c.bold);
 let intervalId, statsIntervalId;
 
 async function main() {
+  if (AUTH_CANARY) {
+    const ok = await runAuthCanary();
+    if (!ok) process.exit(1);
+    intervalId = setInterval(async () => {
+      const stillOk = await runAuthCanary();
+      if (!stillOk) process.exit(1);
+    }, POLL_INTERVAL);
+    return;
+  }
   await runOnce();
   intervalId = setInterval(runOnce, POLL_INTERVAL);
   statsIntervalId = setInterval(showStats, 5 * 60 * 1000);
