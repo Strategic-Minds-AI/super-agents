@@ -84,18 +84,18 @@ function requestHeaders() {
 
 async function runAuthCanary() {
   try {
-    const res = await fetch(`${APP_URL}/functions/runDomainBuyer`, {
+    const res = await fetch(`${APP_URL}/functions/runAgentLoop`, {
       method: 'POST',
       headers: requestHeaders(),
-      body: JSON.stringify({ worker_secret: WORKER_SECRET }),
+      body: JSON.stringify({ worker_secret: WORKER_SECRET, auth_probe: true }),
     });
     const data = await res.json().catch(() => ({}));
-    const pass = res.status === 400 && data.error === 'domain required';
+    const pass = res.status === 200 && data.worker_auth === true;
     if (pass) {
-      log(`✓ AUTH_CANARY_PASS · functions=${FUNCTIONS_VERSION || 'default'}`, c.green);
+      log(`✓ AUTH_CANARY_PASS · functions=${FUNCTIONS_VERSION || 'default'} · runtime=${!!data.runtime_match} · env=${!!data.env_match}`, c.green);
       return true;
     }
-    log(`✗ AUTH_CANARY_FAIL · HTTP ${res.status} · ${String(data.error || 'unexpected_response').slice(0, 160)}`, c.red);
+    log(`✗ AUTH_CANARY_FAIL · HTTP ${res.status} · runtime_present=${!!data.runtime_secret_present} · env_present=${!!data.env_secret_present} · runtime_match=${!!data.runtime_match} · env_match=${!!data.env_match}`, c.red);
     return false;
   } catch (e) {
     log(`✗ AUTH_CANARY_ERROR · ${e.message}`, c.red);
