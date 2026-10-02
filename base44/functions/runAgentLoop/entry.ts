@@ -28,11 +28,12 @@ export default async function(req) {
     }
 
     const maxCycles = Math.min(body?.max_cycles || 5, 10);
+    const agentName = typeof body?.agent_name === 'string' ? body.agent_name.trim() : '';
     const reportEmail = body?.report_email || null; // optional override
     const trace = [];
     const log = (phase, detail) => trace.push({ phase, ...detail, at: new Date().toISOString() });
 
-    log('loop_init', { max_cycles: maxCycles, triggered_by: body?.trigger || 'manual' });
+    log('loop_init', { max_cycles: maxCycles, agent_name: agentName || 'global', triggered_by: body?.trigger || 'manual' });
 
     // ── RESILIENCE: recover stuck tasks BEFORE pulling new work ──
     // If a previous loop crashed mid-task, those tasks are stuck in "in_progress".
@@ -58,12 +59,14 @@ export default async function(req) {
       // ── OBSERVE ──
       const due = await withRetry(() =>
         base44.asServiceRole.entities.AgentTask.filter(
-          { status: 'pending', autonomous: true },
+          agentName
+            ? { status: 'pending', autonomous: true, agent_name: agentName }
+            : { status: 'pending', autonomous: true },
           { limit: 5, sort: '-created_date' }
         )
       );
       const dueTasks = due.items || [];
-      log('observe', { cycle: cycleCount, pending_count: dueTasks.length });
+      log('observe', { cycle: cycleCount, agent_name: agentName || 'global', pending_count: dueTasks.length });
 
       // ── DECIDE ──
       if (dueTasks.length === 0) {
@@ -377,6 +380,7 @@ export default async function(req) {
       emails_sent: emailsSent,
       emails_skipped: emailsSkipped,
       gmail_circuit_tripped: gmailBreaker.isTripped(),
+      agent_name: agentName || 'global',
       cycle_log: cycleLog,
       trace
     });
