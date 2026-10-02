@@ -69,3 +69,40 @@ Exact approval phrase:
 - Preserve current function package before deployment via Base44 pull/checkpoint.
 - If the post-deploy auth probe fails, redeploy the preserved prior `runAgentLoop` package and keep all eight agent lanes gated.
 - Do not roll the other seven lanes until the canary passes.
+
+
+## Production auth-probe execution — 2026-10-02
+
+Approval received:
+`APPROVE BASE44 PRODUCTION FUNCTION DEPLOY: runAgentLoop AUTH PROBE ONLY`
+
+### Execution evidence
+- Base44 pre-release checkpoint: `6ac03f7cf6a581852c061453`
+- Pre-release app commit: `55ea92a8f935372f78f1fa97090dd7fe2bc22c02`
+- Approved patched `runAgentLoop` deployed to Base44 production and verified by pulling the live function back and comparing source.
+- Railway auth canary deployment: `c0434d5f-20b5-4e6d-a961-feda2e9928c5`
+- Canary source: branch `apex/railway-preview-auth-canary-20261002`, commit `8dc96f3f21479df1829c3e15b23ea5fd57d57d6f`
+- Canary executed `auth_probe` only; it did not dequeue or execute AgentTask records.
+
+### Probe result
+`AUTH_CANARY_FAIL`
+- HTTP: 500
+- runtime secret present: false
+- environment secret present: false
+- runtime match: false
+- environment match: false
+
+Conclusion: Base44 management metadata lists `WORKER_SECRET`, but the deployed backend function runtime receives neither the `base44:runtime` secret nor the environment variable. This rules out Railway credential mismatch as the immediate cause.
+
+### Rollback evidence
+- Base44 `runAgentLoop` rolled back to the preserved pre-change package.
+- Fresh Base44 pull verified the live function matches the preserved rollback source and no longer matches the probe patch.
+- Railway orchestrator restored to `main`.
+- Railway rollback deployment: `f10114d1-b050-4e14-8312-be5bb4e46e04`
+- Railway rollback status: SUCCESS
+- Railway rollback commit: `55ea92a8f935372f78f1fa97090dd7fe2bc22c02`
+- Canary mode neutralized.
+- Remaining seven agent lanes were not rolled forward.
+
+### Open blocker
+Base44 secret propagation/runtime availability must be repaired, or worker authentication must be migrated away from Base44 runtime secrets before the 8-lane fleet can be activated.
