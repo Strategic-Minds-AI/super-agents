@@ -24,6 +24,11 @@ import Analytics from '@/pages/Analytics';
 import OAuthConsent from '@/pages/OAuthConsent';
 import Provisioning from '@/pages/Provisioning';
 import AppLayout from '@/components/AppLayout';
+import ProjectsPage from '@/pages/ProjectsPage';
+import ToolsPage from '@/pages/ToolsPage';
+import SettingsPage from '@/pages/SettingsPage';
+import WorkPage from '@/pages/WorkPage';
+import SearchPage from '@/pages/SearchPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -69,6 +74,11 @@ const AuthenticatedApp = () => {
           <Route path="/website-factory" element={<WebsiteFactory />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/provisioning" element={<Provisioning />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/tools" element={<ToolsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/work" element={<WorkPage />} />
+          <Route path="/search" element={<SearchPage />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
