@@ -1,0 +1,121 @@
+name: strategic-minds-super-agents
+
+x-worker: &worker
+  build:
+    context: ./local-worker
+  restart: unless-stopped
+  depends_on:
+    runtime:
+      condition: service_healthy
+  environment: &worker-env
+    RUNTIME_URL: http://runtime:8080
+    RUNTIME_TOKEN: ${RUNTIME_TOKEN}
+    POLL_INTERVAL: ${POLL_INTERVAL:-60000}
+    MAX_CYCLES: ${MAX_CYCLES:-5}
+    RUNTIME_KIND: docker
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: superagents
+      POSTGRES_USER: superagents
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - super_agents_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superagents -d superagents"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  runtime:
+    build:
+      context: .
+      dockerfile: runtime/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://superagents:${POSTGRES_PASSWORD}@postgres:5432/superagents
+      DB_SSL: disable
+      RUNTIME_TOKEN: ${RUNTIME_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
+      SOURCE_SHA: ${SOURCE_SHA:-docker-local}
+      PORT: 8080
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  orchestrator:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: orchestrator
+      WORKER_ID: docker-orchestrator
+
+  growth_operator:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: growth_operator
+      WORKER_ID: docker-growth-operator
+
+  code_architect:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: code_architect
+      WORKER_ID: docker-code-architect
+
+  social_strategist:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: social_strategist
+      WORKER_ID: docker-social-strategist
+
+  sales_engine:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: sales_engine
+      WORKER_ID: docker-sales-engine
+
+  brand_guardian:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: brand_guardian
+      WORKER_ID: docker-brand-guardian
+
+  replicator:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: replicator
+      WORKER_ID: docker-replicator
+
+  swarm:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      AGENT_NAME: swarm
+      WORKER_ID: docker-swarm
+
+volumes:
+  super_agents_pgdata:
