@@ -35,7 +35,7 @@ export default function BatchProgress({ batchId, onLaunched }) {
     );
   }
 
-  if (!batch) return <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-[#5B7FA8]" /></div>;
+  if (!batch) return <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-[#CCBB00]" /></div>;
 
   const pct = batch.progress || 0;
   const stats = [
@@ -48,27 +48,27 @@ export default function BatchProgress({ batchId, onLaunched }) {
   return (
     <section className="xa-card p-5">
       <div className="flex items-center gap-2 mb-3">
-        <Activity className="w-5 h-5 text-[#5B7FA8]" />
-        <h2 className="font-heading font-bold text-lg text-white">{batch.name}</h2>
-        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#1a1a1a] text-[#B8C5D6] ml-auto">{batch.status}</span>
+        <Activity className="w-5 h-5 text-[#CCBB00]" />
+        <h2 className="font-heading font-bold text-lg text-black">{batch.name}</h2>
+        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#FFF7B3] text-[#8A7300] ml-auto">{batch.status}</span>
       </div>
 
       <div className="mb-3">
-        <div className="flex justify-between text-xs mb-1"><span className="text-white/50">Progress</span><span className="font-bold text-white">{pct}%</span></div>
-        <div className="h-2.5 rounded-full bg-[#2a2a2a] overflow-hidden">
-          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#1a1a1a,#8BA5C0,#2a2a2a)" }} />
+        <div className="flex justify-between text-xs mb-1"><span className="text-black/50">Progress</span><span className="font-bold text-black">{pct}%</span></div>
+        <div className="h-2.5 rounded-full bg-[#E5E7EB] overflow-hidden">
+          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#FFF7B3,#FFEA00,#E6D400)" }} />
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-2">
         {stats.map(s => (
-          <div key={s.label} className="text-center p-2 rounded-lg bg-[#171717]">
+          <div key={s.label} className="text-center p-2 rounded-lg bg-[#FAFAFA]">
             <div className="font-heading font-black text-lg" style={{ color: s.color }}>{s.value}</div>
-            <div className="text-[9px] font-bold text-white/50 uppercase">{s.label}</div>
+            <div className="text-[9px] font-bold text-black/50 uppercase">{s.label}</div>
           </div>
         ))}
       </div>
-      {error && <div className="mt-3 p-2 rounded-lg bg-[#1f0d0d] border border-red-800 text-xs text-red-400">{error}</div>}
+      {error && <div className="mt-3 p-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">{error}</div>}
     </section>
   );
 }

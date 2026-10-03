@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Loader2, RefreshCw, Play, Activity, CheckCircle2, Clock, AlertTriangle, Zap, ArrowRight } from "lucide-react";
 
 const STATUS_META = {
-  pending: { icon: Clock, color: "#B8C5D6", bg: "#1a1a1a", label: "Pending" },
+  pending: { icon: Clock, color: "#8A7300", bg: "#FFF7B3", label: "Pending" },
   in_progress: { icon: Activity, color: "#2563EB", bg: "#DBEAFE", label: "Running" },
   needs_approval: { icon: AlertTriangle, color: "#DC2626", bg: "#FEE2E2", label: "Approval" },
   completed: { icon: CheckCircle2, color: "#16A34A", bg: "#DCFCE7", label: "Done" },
@@ -59,13 +59,13 @@ export default function MissionControl() {
   const autonomous = tasks.filter(t => t.autonomous);
 
   return (
-    <div className="min-h-screen bg-[#171717]">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
-      <header className="border-b border-[#2a2a2a] bg-[#212121] sticky top-0 z-10">
+      <header className="border-b border-[#E5E7EB] bg-white sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="xa-pill-badge">MISSION CONTROL</span>
-            <h1 className="font-heading font-black text-xl sm:text-2xl text-white mt-1 truncate">Autonomous Operations</h1>
+            <h1 className="font-heading font-black text-xl sm:text-2xl text-black mt-1 truncate">Autonomous Operations</h1>
           </div>
           <button onClick={() => navigate("/")} className="xa-btn-outline shrink-0">← Center</button>
         </div>
@@ -75,17 +75,17 @@ export default function MissionControl() {
         {/* Status bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Pending", value: counts.pending || 0, icon: Clock, color: "#B8C5D6" },
+            { label: "Pending", value: counts.pending || 0, icon: Clock, color: "#8A7300" },
             { label: "Running", value: counts.in_progress || 0, icon: Activity, color: "#2563EB" },
             { label: "Completed", value: counts.completed || 0, icon: CheckCircle2, color: "#16A34A" },
             { label: "Failed", value: counts.failed || 0, icon: AlertTriangle, color: "#DC2626" }
           ].map((s) => (
             <div key={s.label} className="xa-card p-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-white/50 uppercase tracking-wide">{s.label}</span>
+                <span className="text-xs font-semibold text-black/50 uppercase tracking-wide">{s.label}</span>
                 <s.icon className="w-4 h-4" style={{ color: s.color }} />
               </div>
-              <div className="font-heading font-black text-2xl text-white mt-1">{s.value}</div>
+              <div className="font-heading font-black text-2xl text-black mt-1">{s.value}</div>
             </div>
           ))}
         </div>
@@ -94,10 +94,10 @@ export default function MissionControl() {
         <div className="xa-card p-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0">
-              <h2 className="font-heading font-bold text-lg text-white flex items-center gap-2">
-                <Zap className="w-5 h-5 text-[#5B7FA8]" /> Agent Loop
+              <h2 className="font-heading font-bold text-lg text-black flex items-center gap-2">
+                <Zap className="w-5 h-5 text-[#CCBB00]" /> Agent Loop
               </h2>
-              <p className="text-sm text-white/55 mt-1">Runs the full observe → decide → act → record → repeat cycle. Autonomous tasks execute and self-dispatch follow-ups.</p>
+              <p className="text-sm text-black/55 mt-1">Runs the full observe → decide → act → record → repeat cycle. Autonomous tasks execute and self-dispatch follow-ups.</p>
             </div>
             <button onClick={runLoop} disabled={running} className="xa-btn-primary shrink-0">
               {running ? <><Loader2 className="w-4 h-4 animate-spin" /> Running loop…</> : <><Play className="w-4 h-4" /> Run loop now</>}
@@ -105,21 +105,21 @@ export default function MissionControl() {
           </div>
 
           {loopResult && (
-            <div className="mt-4 p-4 rounded-xl bg-[#171717] border border-[#2a2a2a]">
+            <div className="mt-4 p-4 rounded-xl bg-[#FAFAFA] border border-[#E5E7EB]">
               <div className="flex flex-wrap gap-4 text-sm">
-                <div><span className="text-white/50">Cycles:</span> <span className="font-bold text-white">{loopResult.cycles_run}</span></div>
-                <div><span className="text-white/50">Actions:</span> <span className="font-bold text-white">{loopResult.actions_executed}</span></div>
-                <div><span className="text-white/50">Follow-ups dispatched:</span> <span className="font-bold text-[#5B7FA8]">{loopResult.followups_dispatched}</span></div>
-                <div><span className="text-white/50">LLM:</span> <span className="font-bold text-white">{loopResult.llm_used ? "yes" : "no (deterministic)"}</span></div>
+                <div><span className="text-black/50">Cycles:</span> <span className="font-bold text-black">{loopResult.cycles_run}</span></div>
+                <div><span className="text-black/50">Actions:</span> <span className="font-bold text-black">{loopResult.actions_executed}</span></div>
+                <div><span className="text-black/50">Follow-ups dispatched:</span> <span className="font-bold text-[#CCBB00]">{loopResult.followups_dispatched}</span></div>
+                <div><span className="text-black/50">LLM:</span> <span className="font-bold text-black">{loopResult.llm_used ? "yes" : "no (deterministic)"}</span></div>
               </div>
               {loopResult.trace && loopResult.trace.length > 0 && (
                 <details className="mt-3">
-                  <summary className="text-xs font-semibold text-white/50 cursor-pointer hover:text-white">Execution trace ({loopResult.trace.length} steps)</summary>
+                  <summary className="text-xs font-semibold text-black/50 cursor-pointer hover:text-black">Execution trace ({loopResult.trace.length} steps)</summary>
                   <div className="mt-2 space-y-1 max-h-48 overflow-y-auto xa-scroll">
                     {loopResult.trace.map((t, i) => (
-                      <div key={i} className="text-xs font-mono text-white/60 flex gap-2">
-                        <span className="text-[#5B7FA8] shrink-0">{t.phase || t.stage}</span>
-                        <span className="text-white/40 truncate">{JSON.stringify({...t, phase: undefined, stage: undefined, at: undefined})}</span>
+                      <div key={i} className="text-xs font-mono text-black/60 flex gap-2">
+                        <span className="text-[#CCBB00] shrink-0">{t.phase || t.stage}</span>
+                        <span className="text-black/40 truncate">{JSON.stringify({...t, phase: undefined, stage: undefined, at: undefined})}</span>
                       </div>
                     ))}
                   </div>
@@ -134,18 +134,18 @@ export default function MissionControl() {
         {/* Task queue */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-heading font-bold text-lg text-white">Task Queue</h2>
-            <button onClick={load} disabled={loading} className="text-white/50 hover:text-white">
+            <h2 className="font-heading font-bold text-lg text-black">Task Queue</h2>
+            <button onClick={load} disabled={loading} className="text-black/50 hover:text-black">
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-[#5B7FA8]" /></div>
+            <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-[#CCBB00]" /></div>
           ) : tasks.length === 0 ? (
             <div className="xa-card p-10 text-center">
-              <Clock className="w-8 h-8 mx-auto text-white/20" />
-              <p className="text-white/50 mt-2 text-sm">No tasks in the queue. Run a growth mission or the loop to generate work.</p>
+              <Clock className="w-8 h-8 mx-auto text-black/20" />
+              <p className="text-black/50 mt-2 text-sm">No tasks in the queue. Run a growth mission or the loop to generate work.</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -159,15 +159,15 @@ export default function MissionControl() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-white text-sm">{t.title}</span>
-                        {t.autonomous && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1a1a1a] text-[#B8C5D6]">AUTO</span>}
+                        <span className="font-bold text-black text-sm">{t.title}</span>
+                        {t.autonomous && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FFF7B3] text-[#8A7300]">AUTO</span>}
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${PRIORITY_STYLE[t.priority] || PRIORITY_STYLE.medium}`}>{t.priority}</span>
                       </div>
-                      <div className="text-xs text-white/45 mt-0.5">
+                      <div className="text-xs text-black/45 mt-0.5">
                         {t.agent_name} · {t.task_type || "generic"}
                         {t.domain && <span> · {t.domain}</span>}
                       </div>
-                      {t.result && <div className="text-xs text-white/40 mt-1 truncate font-mono">{t.result}</div>}
+                      {t.result && <div className="text-xs text-black/40 mt-1 truncate font-mono">{t.result}</div>}
                     </div>
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0" style={{ background: meta.bg, color: meta.color }}>{meta.label}</span>
                   </div>
@@ -178,9 +178,9 @@ export default function MissionControl() {
         </div>
 
         {/* Info note */}
-        <div className="xa-card p-4 bg-[#1a1a1a]/30 border-[#2a2a2a]/30">
-          <p className="text-xs text-white/60 leading-relaxed">
-            <strong className="text-white">How autonomy works here:</strong> The loop reads pending autonomous tasks, executes each one, records the result, and — if the result warrants it — creates a follow-up task for the next step. No human clicks between cycles. The hourly workflow fires this automatically; you can also run it manually above. LLM-based decisions (MetaArchitect) are credit-blocked until Oct 12; this deterministic loop runs now.
+        <div className="xa-card p-4 bg-[#FFF7B3]/30 border-[#E6D400]/30">
+          <p className="text-xs text-black/60 leading-relaxed">
+            <strong className="text-black">How autonomy works here:</strong> The loop reads pending autonomous tasks, executes each one, records the result, and — if the result warrants it — creates a follow-up task for the next step. No human clicks between cycles. The hourly workflow fires this automatically; you can also run it manually above. LLM-based decisions (MetaArchitect) are credit-blocked until Oct 12; this deterministic loop runs now.
           </p>
         </div>
       </main>

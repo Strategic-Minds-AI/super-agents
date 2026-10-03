@@ -10,12 +10,12 @@ export default function SystemFactory() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <div className="min-h-screen bg-[#171717]">
-      <header className="border-b border-[#2a2a2a] bg-[#212121] sticky top-0 z-10">
+    <div className="min-h-screen bg-[#FAFAFA]">
+      <header className="border-b border-[#E5E7EB] bg-white sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="xa-pill-badge">SYSTEM FACTORY</span>
-            <h1 className="font-heading font-black text-xl sm:text-2xl text-white mt-1 truncate">Build Anything, Autonomously</h1>
+            <h1 className="font-heading font-black text-xl sm:text-2xl text-black mt-1 truncate">Build Anything, Autonomously</h1>
           </div>
           <div className="flex gap-2 shrink-0">
             <button onClick={() => navigate("/batch")} className="xa-btn-primary text-xs px-3 py-2">⚡ Batch Ops</button>

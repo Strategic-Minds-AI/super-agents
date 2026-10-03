@@ -63,10 +63,10 @@ export default function DomainDiscovery({ onDiscovered }) {
   return (
     <section className="xa-card p-5">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center"><Globe className="w-5 h-5 text-[#B8C5D6]" /></div>
+        <div className="w-9 h-9 rounded-lg bg-[#FFF7B3] flex items-center justify-center"><Globe className="w-5 h-5 text-[#8A7300]" /></div>
         <div>
-          <h2 className="font-heading font-bold text-lg text-white">Domain Discovery & Buyer</h2>
-          <p className="text-xs text-white/50">Discover across all TLDs · live GoDaddy pricing · one-click buy</p>
+          <h2 className="font-heading font-bold text-lg text-black">Domain Discovery & Buyer</h2>
+          <p className="text-xs text-black/50">Discover across all TLDs · live GoDaddy pricing · one-click buy</p>
         </div>
       </div>
 
@@ -76,8 +76,8 @@ export default function DomainDiscovery({ onDiscovered }) {
         <div className="flex flex-wrap gap-1.5">
           {TLDS.map(t => (
             <button key={t} onClick={() => toggleTld(t)}
-              className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all ${selectedTlds.includes(t) ? "border-transparent text-white" : "border-[#2a2a2a] text-white/40"}`}
-              style={selectedTlds.includes(t) ? { background: "linear-gradient(135deg,#1a1a1a,#8BA5C0 20%,#2a2a2a 45%,#B8C5D6 65%,#8BA5C0 80%,#5B7FA8)" } : {}}>
+              className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all ${selectedTlds.includes(t) ? "border-transparent text-black" : "border-[#E5E7EB] text-black/40"}`}
+              style={selectedTlds.includes(t) ? { background: "linear-gradient(135deg,#FFF7B3,#FFEA00 20%,#E6D400 45%,#FFEE33 65%,#FFEA00 80%,#CCBB00)" } : {}}>
               .{t}
             </button>
           ))}
@@ -87,14 +87,14 @@ export default function DomainDiscovery({ onDiscovered }) {
           {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Discovering…</> : <><Search className="w-4 h-4" /> Discover domains</>}
         </button>
 
-        {error && <div className="p-2 rounded-lg bg-[#1f0d0d] border border-red-800 text-xs text-red-400">{error}</div>}
+        {error && <div className="p-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">{error}</div>}
 
         {results && (
-          <div className="p-3 rounded-xl bg-[#171717] border border-[#2a2a2a]">
+          <div className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E7EB]">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-xs font-bold text-white/60">{results.available_count || 0} available of {results.candidates_checked || 0} checked</div>
+              <div className="text-xs font-bold text-black/60">{results.available_count || 0} available of {results.candidates_checked || 0} checked</div>
               <div className="flex gap-1.5">
-                <button onClick={checkAllPrices} className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#1a1a1a] text-[#B8C5D6]"><DollarSign className="w-3 h-3 inline" /> Check all prices</button>
+                <button onClick={checkAllPrices} className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#FFF7B3] text-[#8A7300]"><DollarSign className="w-3 h-3 inline" /> Check all prices</button>
                 <button onClick={buyAll} className="text-[10px] font-bold px-2 py-1 rounded-lg bg-black text-white"><ShoppingCart className="w-3 h-3 inline" /> Buy all</button>
               </div>
             </div>
@@ -105,14 +105,14 @@ export default function DomainDiscovery({ onDiscovered }) {
                 const isBuying = buying[d];
                 const buyRes = buyResults[d];
                 return (
-                  <div key={d} className="flex items-center gap-2 text-xs p-1.5 rounded-lg hover:bg-[#212121]">
+                  <div key={d} className="flex items-center gap-2 text-xs p-1.5 rounded-lg hover:bg-white">
                     <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
-                    <span className="font-mono text-white truncate flex-1 min-w-0">{d}</span>
+                    <span className="font-mono text-black truncate flex-1 min-w-0">{d}</span>
                     {price === "bought" ? (
                       <span className="text-[10px] font-bold text-green-600 shrink-0">✓ BOUGHT</span>
                     ) : price && price !== "unavailable" && price !== "error" ? (
                       <>
-                        <span className="font-bold text-white shrink-0">{price}</span>
+                        <span className="font-bold text-black shrink-0">{price}</span>
                         <button onClick={() => buyDomain(d)} disabled={isBuying} className="xa-btn-primary text-[10px] px-2 py-1 shrink-0">
                           {isBuying ? <Loader2 className="w-3 h-3 animate-spin" /> : <ShoppingCart className="w-3 h-3" />} Buy
                         </button>
@@ -120,7 +120,7 @@ export default function DomainDiscovery({ onDiscovered }) {
                     ) : price === "unavailable" ? (
                       <span className="text-[10px] text-red-500 shrink-0">taken</span>
                     ) : (
-                      <button onClick={() => checkPrice(d)} disabled={isLoadingPrice} className="text-[10px] font-bold text-[#5B7FA8] hover:underline shrink-0">
+                      <button onClick={() => checkPrice(d)} disabled={isLoadingPrice} className="text-[10px] font-bold text-[#CCBB00] hover:underline shrink-0">
                         {isLoadingPrice ? <Loader2 className="w-3 h-3 animate-spin" /> : "check price"}
                       </button>
                     )}
@@ -130,12 +130,12 @@ export default function DomainDiscovery({ onDiscovered }) {
               })}
             </div>
             {buyResults && Object.values(buyResults).some(r => r?.needs_setup) && (
-              <div className="mt-2 p-2 rounded-lg bg-[#2a2a1a] border border-[#3a3a2a] text-[10px] text-orange-400">
+              <div className="mt-2 p-2 rounded-lg bg-orange-50 border border-orange-200 text-[10px] text-orange-700">
                 ⚠ GoDaddy API keys not set. Add them in Secrets to enable purchasing.
               </div>
             )}
             {buyResults && Object.values(buyResults).some(r => r?.needs_contact) && (
-              <div className="mt-2 p-2 rounded-lg bg-[#2a2a1a] border border-[#3a3a2a] text-[10px] text-orange-400">
+              <div className="mt-2 p-2 rounded-lg bg-orange-50 border border-orange-200 text-[10px] text-orange-700">
                 ⚠ No registrar profile found. Create one with your contact info to purchase domains.
               </div>
             )}

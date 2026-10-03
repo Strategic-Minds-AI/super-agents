@@ -29,12 +29,12 @@ export default function BatchOperations() {
   };
 
   return (
-    <div className="min-h-screen bg-[#171717]">
-      <header className="border-b border-[#2a2a2a] bg-[#212121] sticky top-0 z-10">
+    <div className="min-h-screen bg-[#FAFAFA]">
+      <header className="border-b border-[#E5E7EB] bg-white sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="xa-pill-badge">BATCH OPERATIONS</span>
-            <h1 className="font-heading font-black text-xl sm:text-2xl text-white mt-1 truncate">1000 Sites. One Day. One Page.</h1>
+            <h1 className="font-heading font-black text-xl sm:text-2xl text-black mt-1 truncate">1000 Sites. One Day. One Page.</h1>
           </div>
           <div className="flex gap-2 shrink-0">
             <button onClick={() => navigate("/website-factory")} className="xa-btn-primary text-xs px-3 py-2">🏭 Factory</button>
@@ -52,18 +52,18 @@ export default function BatchOperations() {
         </button>
 
         {result && (
-          <div className="xa-card p-4 bg-[#0d1f0d] border-green-800">
-            <div className="font-bold text-green-400 text-sm">Batch dispatched!</div>
-            <div className="text-xs text-white/60 mt-1">{result.sites || result.batch_size} sites · {result.tasks_dispatched} autonomous tasks queued across all phases.</div>
+          <div className="xa-card p-4 bg-green-50 border-green-200">
+            <div className="font-bold text-green-700 text-sm">Batch dispatched!</div>
+            <div className="text-xs text-black/60 mt-1">{result.sites || result.batch_size} sites · {result.tasks_dispatched} autonomous tasks queued across all phases.</div>
           </div>
         )}
-        {error && <div className="p-3 rounded-lg bg-[#1f0d0d] border border-red-800 text-sm text-red-400">{error}</div>}
+        {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
 
         <BatchHistory refreshKey={refreshKey} />
 
-        <div className="xa-card p-4 bg-[#1a1a1a]/30 border-[#2a2a2a]/30">
-          <p className="text-xs text-white/60 leading-relaxed">
-            <strong className="text-white">How it works:</strong> Define a template with {"{variables}"}, set your batch size, toggle which operations run (Google connect, social, video, content optimization), and launch. The backend dispatches autonomous tasks for every site × every phase. The worker picks them up and executes — build → deploy → connect → post → analyze → optimize — all hands-free. Use the Worker Fleet to scale execution across multiple workers.
+        <div className="xa-card p-4 bg-[#FFF7B3]/30 border-[#E6D400]/30">
+          <p className="text-xs text-black/60 leading-relaxed">
+            <strong className="text-black">How it works:</strong> Define a template with {"{variables}"}, set your batch size, toggle which operations run (Google connect, social, video, content optimization), and launch. The backend dispatches autonomous tasks for every site × every phase. The worker picks them up and executes — build → deploy → connect → post → analyze → optimize — all hands-free. Use the Worker Fleet to scale execution across multiple workers.
           </p>
         </div>
       </main>

@@ -55,9 +55,9 @@ export default function SystemBuilderForm({ onSubmitted }) {
   if (success) {
     return (
       <section className="xa-card p-6 text-center">
-        <div className="w-14 h-14 mx-auto rounded-full bg-[#0d1f0d] flex items-center justify-center"><Check className="w-7 h-7 text-green-400" /></div>
-        <h3 className="font-heading font-bold text-lg text-white mt-3">Build submitted!</h3>
-        <p className="text-sm text-white/50 mt-1">Your system spec is queued. The autonomous worker will pick it up and start building.</p>
+        <div className="w-14 h-14 mx-auto rounded-full bg-green-50 flex items-center justify-center"><Check className="w-7 h-7 text-green-600" /></div>
+        <h3 className="font-heading font-bold text-lg text-black mt-3">Build submitted!</h3>
+        <p className="text-sm text-black/50 mt-1">Your system spec is queued. The autonomous worker will pick it up and start building.</p>
         <button onClick={() => setSuccess(null)} className="xa-btn-outline mt-4">Build another</button>
       </section>
     );
@@ -66,10 +66,10 @@ export default function SystemBuilderForm({ onSubmitted }) {
   return (
     <section className="xa-card p-5">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center"><Sparkles className="w-5 h-5 text-[#B8C5D6]" /></div>
+        <div className="w-9 h-9 rounded-lg bg-[#FFF7B3] flex items-center justify-center"><Sparkles className="w-5 h-5 text-[#8A7300]" /></div>
         <div>
-          <h2 className="font-heading font-bold text-lg text-white">System Builder</h2>
-          <p className="text-xs text-white/50">Type your spec, press build, get it delivered — autonomously</p>
+          <h2 className="font-heading font-bold text-lg text-black">System Builder</h2>
+          <p className="text-xs text-black/50">Type your spec, press build, get it delivered — autonomously</p>
         </div>
       </div>
 
@@ -79,8 +79,8 @@ export default function SystemBuilderForm({ onSubmitted }) {
         <div className="flex flex-wrap gap-2">
           {BUILD_TYPES.map(t => (
             <button key={t.value} onClick={() => set("build_type", t.value)}
-              className={`px-3 py-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 ${form.build_type === t.value ? "border-transparent text-white" : "border-[#2a2a2a] text-white/50"}`}
-              style={form.build_type === t.value ? { background: "linear-gradient(135deg,#1a1a1a,#8BA5C0 20%,#2a2a2a 45%,#B8C5D6 65%,#8BA5C0 80%,#5B7FA8)" } : {}}>
+              className={`px-3 py-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 ${form.build_type === t.value ? "border-transparent text-black" : "border-[#E5E7EB] text-black/50"}`}
+              style={form.build_type === t.value ? { background: "linear-gradient(135deg,#FFF7B3,#FFEA00 20%,#E6D400 45%,#FFEE33 65%,#FFEA00 80%,#CCBB00)" } : {}}>
               <span>{t.icon}</span> {t.label}
             </button>
           ))}
@@ -88,7 +88,7 @@ export default function SystemBuilderForm({ onSubmitted }) {
 
         {FIELDS.map(f => (
           <div key={f.key}>
-            <label className="text-xs font-bold text-white/60 block mb-1">{f.label}</label>
+            <label className="text-xs font-bold text-black/60 block mb-1">{f.label}</label>
             <textarea className="xa-input min-h-[70px] py-2.5 resize-y" placeholder={f.ph} value={form[f.key]} onChange={e => set(f.key, e.target.value)} />
           </div>
         ))}

@@ -23,10 +23,10 @@ export default function TemplateGenerator({ onGenerated }) {
   return (
     <section className="xa-card p-5">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center"><FileCode className="w-5 h-5 text-[#B8C5D6]" /></div>
+        <div className="w-9 h-9 rounded-lg bg-[#FFF7B3] flex items-center justify-center"><FileCode className="w-5 h-5 text-[#8A7300]" /></div>
         <div>
-          <h2 className="font-heading font-bold text-lg text-white">Auto Template Generator</h2>
-          <p className="text-xs text-white/50">AI generates a full website template spec from your niche</p>
+          <h2 className="font-heading font-bold text-lg text-black">Auto Template Generator</h2>
+          <p className="text-xs text-black/50">AI generates a full website template spec from your niche</p>
         </div>
       </div>
 
@@ -38,16 +38,16 @@ export default function TemplateGenerator({ onGenerated }) {
           {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating template…</> : <><Sparkles className="w-4 h-4" /> Generate template</>}
         </button>
 
-        {error && <div className="p-2 rounded-lg bg-[#1f0d0d] border border-red-800 text-xs text-red-400">{error}</div>}
+        {error && <div className="p-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">{error}</div>}
 
         {template && template.template && (
-          <div className="p-3 rounded-xl bg-[#171717] border border-[#2a2a2a]">
-            <div className="text-xs font-bold text-white mb-2">{template.template.title || "Generated template"}</div>
+          <div className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E7EB]">
+            <div className="text-xs font-bold text-black mb-2">{template.template.title || "Generated template"}</div>
             <div className="space-y-1 max-h-48 overflow-y-auto xa-scroll text-xs">
               {Object.entries(template.template).map(([k, v]) => (
                 <div key={k} className="flex gap-2">
-                  <span className="font-bold text-[#5B7FA8] shrink-0">{k}:</span>
-                  <span className="text-white/60 truncate">{typeof v === "string" ? v.slice(0, 80) : JSON.stringify(v).slice(0, 80)}</span>
+                  <span className="font-bold text-[#CCBB00] shrink-0">{k}:</span>
+                  <span className="text-black/60 truncate">{typeof v === "string" ? v.slice(0, 80) : JSON.stringify(v).slice(0, 80)}</span>
                 </div>
               ))}
             </div>

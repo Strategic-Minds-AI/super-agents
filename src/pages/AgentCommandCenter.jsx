@@ -1,122 +1,94 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowUp, Plus, Mic, Paperclip, Globe2, ChevronDown, MoreHorizontal,
-  Boxes, Search, ServerCog, Sparkles, Brain, Activity, GitBranch, Database,
-  Container, ShieldCheck, Clock3
-} from "lucide-react";
-import { runtime } from "@/lib/runtimeClient";
+import AgentCard from "@/components/agents/AgentCard";
 
-const projects=[
-  {name:"AI HUB",desc:"Unified orchestration, MCP routes, workers and runtime control.",Icon:Boxes,path:"/mission-control",status:"Active",meta:"12 agents · 4 runtimes"},
-  {name:"DIGITAL DOMINANCE",desc:"SEO, AEO, GEO and automated growth operations.",Icon:Search,path:"/agents/growth_operator",status:"Active",meta:"Growth Operator"},
-  {name:"JARVIS",desc:"Persistent local Docker worker fabric and execution node.",Icon:ServerCog,path:"/work",status:"Online",meta:"10 workers"},
-  {name:"WEBSITE FACTORY",desc:"Universal build, visual validation and replication pipeline.",Icon:Sparkles,path:"/website-factory",status:"Ready",meta:"Factory runtime"},
+const AGENTS = [
+  {
+    name: "orchestrator", label: "The Orchestrator", icon: "🧠", category: "Apex", apex: true,
+    description: "The apex master agent. Give it any business goal — it decomposes the work across stages, dispatches the specialist agents via the action queue, sequences the critical path, and reports a unified mission brief.",
+    skills: ["Decompose", "Dispatch", "Sequence", "Track", "Escalate", "Mission Control"]
+  },
+  {
+    name: "growth_operator", label: "Growth Operator", icon: "🛡️", category: "Operate", flagship: true,
+    description: "Autonomous Google growth engine — takes any URL end-to-end through Search Console, GA4, GTM, sitemaps, index coverage, competitor intelligence and continuous monitoring.",
+    skills: ["Search Console", "GA4", "GTM", "Sitemaps", "Indexing", "Competitors", "Analytics"]
+  },
+  {
+    name: "code_architect", label: "Code Architect", icon: "⚙️", category: "Build",
+    description: "Elite staff-engineer pair. Writes, reviews, refactors, debugs and ships production code across the full stack. Creates SystemBuild records and dispatches build tasks.",
+    skills: ["React", "TypeScript", "Python", "Refactor", "Debug", "SystemBuild", "Tests"]
+  },
+  {
+    name: "social_strategist", label: "Social Strategist", icon: "📣", category: "Grow",
+    description: "Owns the full social lifecycle — strategy, platform-native content, calendars, engagement playbooks and performance analysis. Dispatches social automation tasks.",
+    skills: ["Instagram", "TikTok", "LinkedIn", "Content", "Calendar", "Engagement", "Automation"]
+  },
+  {
+    name: "sales_engine", label: "Sales Engine", icon: "🚀", category: "Grow",
+    description: "Revenue super-agent from prospect to closed deal — ICPs, outreach sequences, qualification, pipeline, follow-up and closing playbooks. Dispatches outreach automation tasks.",
+    skills: ["Outbound", "Sequences", "MEDDIC", "Pipeline", "Forecasting", "Closing", "Automation"]
+  },
+  {
+    name: "brand_guardian", label: "Brand Guardian", icon: "✦", category: "Discover",
+    description: "Protects and amplifies the brand — voice, messaging, content strategy, copywriting and creative direction across every touchpoint. Dispatches content production tasks.",
+    skills: ["Voice", "Copy", "Content", "Positioning", "Style Guide", "Audit"]
+  },
+  {
+    name: "replicator", label: "The Replicator", icon: "🧬", category: "Apex",
+    description: "Fleet cloning super-agent. Clones and deploys the entire Xtreme AI agent architecture to new domains, systems, and Base44 apps — at any scale. Provisions SystemBuilds, launches BatchOperations, and dispatches replication tasks.",
+    skills: ["Clone", "Provision", "Batch Deploy", "Blueprint", "Scale", "Replicate"]
+  },
+  {
+    name: "swarm", label: "The Swarm", icon: "🐝", category: "Apex",
+    description: "Parallel coordination super-agent. Takes a single goal, splits it into independent subtasks, dispatches them across the specialist fleet simultaneously, aggregates results, and reports a unified output. Maximum throughput.",
+    skills: ["Parallel", "Decompose", "Dispatch All", "Aggregate", "Throughput", "Scale"]
+  }
 ];
 
-const quick=[
-  {label:"Build an app",Icon:GitBranch,path:"/agents/code_architect"},
-  {label:"Research",Icon:Globe2,path:"/architect"},
-  {label:"Run swarm",Icon:Brain,path:"/agents/swarm"},
-  {label:"Validate system",Icon:ShieldCheck,path:"/mission-control"},
-];
+const CATEGORIES = ["All", "Apex", "Discover", "Build", "Grow", "Operate"];
 
-export default function AgentCommandCenter(){
-  const navigate=useNavigate();
-  const [input,setInput]=useState("");
-  const [busy,setBusy]=useState(false);
-
-  const send=async()=>{
-    const message=input.trim();
-    if(!message||busy) return;
-    setBusy(true);
-    try{
-      const conv=await runtime.createConversation({agent_name:"orchestrator",metadata:{source:"apex_portal"}});
-      await runtime.sendMessage(conv.id,{role:"user",content:message});
-      navigate("/agents/orchestrator");
-    }catch{
-      navigate("/agents/orchestrator");
-    }finally{
-      setBusy(false);setInput("");
-    }
-  };
+export default function AgentCommandCenter() {
+  const navigate = useNavigate();
+  const [category, setCategory] = useState("All");
+  const filtered = category === "All" ? AGENTS : AGENTS.filter((a) => a.category === category);
 
   return (
-    <div className="h-full bg-[#0f1012] text-[#eef1f5] flex flex-col overflow-hidden">
-      <header className="h-[62px] px-6 flex items-center border-b border-[#22252a] shrink-0">
-        <div>
-          <div className="text-sm font-semibold tracking-wide">APEX</div>
-          <div className="text-[11px] text-[#717985]">Command workspace</div>
-        </div>
-        <div className="ml-auto flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 h-8 px-3 rounded-full border border-[#2a2e34] bg-[#15171a] text-[11px] text-[#a4adb8]">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"/> Persistent runtime online
+    <div className="min-h-screen bg-white">
+      <section className="border-b border-[#E5E7EB] bg-gradient-to-b from-[#FFF7B3]/30 to-white">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <span className="xa-pill-badge">XTREME AI · OPERATIONS</span>
+          <h1 className="font-heading font-black text-4xl md:text-5xl text-black mt-4 leading-tight">Autonomous Agent Command Center</h1>
+          <p className="text-lg text-black/60 mt-4 max-w-2xl">A fleet of super-agents engineered like GPT — one for every stage of your business flow. Launch any agent, give it a goal, and it operates end to end.</p>
+          <div className="flex flex-wrap gap-3 mt-8">
+            <button onClick={() => navigate("/architect")} className="xa-btn-primary">✦ Launch Meta Architect</button>
+            <button onClick={() => navigate("/factory")} className="xa-btn-primary">🏗️ System Factory</button>
+            <button onClick={() => navigate("/batch")} className="xa-btn-primary">⚡ Batch Operations</button>
+            <button onClick={() => navigate("/website-factory")} className="xa-btn-primary">🏭 Website Factory</button>
+            <button onClick={() => navigate("/analytics")} className="xa-btn-primary">📊 Live Analytics</button>
+            <button onClick={() => navigate("/mission-control")} className="xa-btn-outline">⚡ Mission Control</button>
+            <button onClick={() => navigate("/mission")} className="xa-btn-outline">Growth Operator mission</button>
+            <button onClick={() => navigate("/agents/growth_operator")} className="xa-btn-outline">Chat Growth Operator</button>
+            <button onClick={() => navigate("/agents/replicator")} className="xa-btn-outline">🧬 Chat Replicator</button>
+            <button onClick={() => navigate("/agents/swarm")} className="xa-btn-outline">🐝 Chat Swarm</button>
+            <button onClick={() => navigate("/domains")} className="xa-btn-outline">Domain Registry</button>
           </div>
-          <button className="w-8 h-8 rounded-lg hover:bg-[#1a1d21] flex items-center justify-center text-[#87909b]"><MoreHorizontal size={18}/></button>
         </div>
-      </header>
+      </section>
 
-      <div className="flex-1 overflow-y-auto xa-scroll">
-        <div className="max-w-[1060px] mx-auto px-6 pt-[72px] pb-36">
-          <section className="text-center">
-            <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-br from-[#e5ebf2] via-[#90a5bd] to-[#526f91] text-[#11151a] flex items-center justify-center shadow-[0_10px_35px_rgba(74,111,165,.18)]"><Brain size={24}/></div>
-            <h1 className="mt-5 text-[34px] md:text-[40px] font-semibold tracking-[-0.035em]">How can I help you today?</h1>
-            <p className="mt-3 text-[14px] text-[#858e99]">APEX can plan, build, research, coordinate the swarm, validate, and continue work through your persistent runtime.</p>
-          </section>
-
-          <section className="mt-10">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-[#cfd5dc]">Active Projects</h2>
-              <button onClick={()=>navigate("/projects")} className="text-xs text-[#7f91a7] hover:text-[#b8c7d8]">View all</button>
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              {projects.map(({name,desc,Icon,path,status,meta})=>(
-                <button key={name} onClick={()=>navigate(path)} className="apex-project-card text-left">
-                  <div className="flex items-start">
-                    <div className="w-10 h-10 rounded-xl bg-[#1b1e23] border border-[#2b3037] flex items-center justify-center text-[#aebed0]"><Icon size={19}/></div>
-                    <div className="ml-3 min-w-0">
-                      <div className="font-semibold text-[14px] tracking-wide">{name}</div>
-                      <div className="mt-1 text-[12px] leading-5 text-[#7f8791]">{desc}</div>
-                    </div>
-                    <MoreHorizontal size={17} className="ml-auto text-[#5f6770]"/>
-                  </div>
-                  <div className="mt-4 flex items-center gap-2 text-[11px]">
-                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#15181c] border border-[#292d33] text-[#9da7b2]"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"/>{status}</span>
-                    <span className="text-[#656d77]">{meta}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="mt-7">
-            <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-[#cfd5dc]">Start with APEX</h2><span className="text-[11px] text-[#646c76]">Super Agent Zero</span></div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-              {quick.map(({label,Icon,path})=><button key={label} onClick={()=>navigate(path)} className="h-[76px] rounded-xl border border-[#272b31] bg-[#141619] hover:bg-[#191c20] hover:border-[#3b4653] transition-all flex flex-col items-start justify-between p-3 text-left"><Icon size={17} className="text-[#95a8bd]"/><span className="text-[12px] font-medium">{label}</span></button>)}
-            </div>
-          </section>
-
-          <section className="mt-7 grid md:grid-cols-3 gap-2.5">
-            <div className="apex-status-card"><Activity size={15}/><div><div className="text-[11px] text-[#717985]">Runtime</div><div className="text-[12px] font-medium">Agent Factory online</div></div></div>
-            <div className="apex-status-card"><Database size={15}/><div><div className="text-[11px] text-[#717985]">State</div><div className="text-[12px] font-medium">Durable queue active</div></div></div>
-            <div className="apex-status-card"><Container size={15}/><div><div className="text-[11px] text-[#717985]">Workers</div><div className="text-[12px] font-medium">Docker + Railway</div></div></div>
-          </section>
+      <section className="max-w-6xl mx-auto px-6 py-12">
+        <div className="flex flex-wrap gap-2 mb-8">
+          {CATEGORIES.map((c) => (
+            <button key={c} onClick={() => setCategory(c)}
+              className={`px-5 py-2.5 rounded-full border text-sm font-semibold transition-all ${category === c ? "border-transparent text-black" : "border-[#E5E7EB] text-black/50 hover:border-[#FFEA00] hover:text-black"}`}
+              style={category === c ? { background: "linear-gradient(135deg,#FFF7B3,#FFEA00 20%,#E6D400 45%,#FFEE33 65%,#FFEA00 80%,#CCBB00)", boxShadow: "inset 0 1px #fff6, inset 0 -1px #8c6e0040, 0 1px 3px #00000026" } : {}}>
+              {c}
+            </button>
+          ))}
         </div>
-      </div>
-
-      <div className="absolute lg:left-[286px] left-0 right-0 bottom-0 pointer-events-none">
-        <div className="max-w-[820px] mx-auto px-5 pb-5 pointer-events-auto">
-          <div className="apex-composer">
-            <button className="apex-compose-icon"><Plus size={19}/></button>
-            <button className="apex-compose-icon hidden sm:flex"><Paperclip size={17}/></button>
-            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="+ Ask APEX anything…" />
-            <button className="hidden md:flex items-center gap-1.5 px-2 text-[11px] text-[#7c8590]">GPT-5.6 <ChevronDown size={12}/></button>
-            <button className="apex-compose-icon"><Mic size={18}/></button>
-            <button onClick={send} disabled={!input.trim()||busy} className="apex-send"><ArrowUp size={17}/></button>
-          </div>
-          <div className="mt-2 flex justify-center items-center gap-3 text-[10px] text-[#59616b]"><span className="flex items-center gap-1"><Clock3 size={11}/>Persistent</span><span>•</span><span>Governed execution</span><span>•</span><span>Independent validation</span></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((a) => <AgentCard key={a.name} agent={a} onLaunch={(ag) => navigate(`/agents/${ag.name}`)} />)}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

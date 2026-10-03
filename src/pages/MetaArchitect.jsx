@@ -36,21 +36,21 @@ export default function MetaArchitect() {
   };
 
   return (
-    <div className="min-h-screen bg-[#171717]">
-      <section className="border-b border-[#2a2a2a] bg-gradient-to-b from-[#1a1a1a]/30 to-[#171717]">
+    <div className="min-h-screen bg-white">
+      <section className="border-b border-[#E5E7EB] bg-gradient-to-b from-[#FFF7B3]/30 to-white">
         <div className="max-w-4xl mx-auto px-6 py-12">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm font-semibold text-white/50 hover:text-white mb-6">
+          <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm font-semibold text-black/50 hover:text-black mb-6">
             <ArrowLeft className="w-4 h-4" /> Command Center
           </button>
           <span className="xa-pill-badge">TIER 4 · CODE AGENT (LLM TOOL LOOP)</span>
-          <h1 className="font-heading font-black text-3xl md:text-4xl text-white mt-4 leading-tight">The Meta Architect</h1>
-          <p className="text-base text-white/60 mt-3 max-w-2xl">
+          <h1 className="font-heading font-black text-3xl md:text-4xl text-black mt-4 leading-tight">The Meta Architect</h1>
+          <p className="text-base text-black/60 mt-3 max-w-2xl">
             A real agent loop — an LLM with tools scoped to your app. It inspects state, plans, dispatches real tasks,
             runs the growth pipeline, searches the web, and submits a brief. Same architecture that powers a builder agent.
           </p>
 
           <div className="mt-8">
-            <label className="text-xs uppercase tracking-wide text-white/40 font-bold">Goal</label>
+            <label className="text-xs uppercase tracking-wide text-black/40 font-bold">Goal</label>
             <textarea
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
@@ -69,11 +69,11 @@ export default function MetaArchitect() {
 
       <section className="max-w-4xl mx-auto px-6 py-10">
         {error && (
-          <div className="xa-card p-5 border-red-800 bg-[#1f0d0d] flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5" />
+          <div className="xa-card p-5 border-red-200 bg-red-50 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
             <div>
-              <p className="font-bold text-red-400">Agent error</p>
-              <p className="text-sm text-red-400 mt-1">{error}</p>
+              <p className="font-bold text-red-700">Agent error</p>
+              <p className="text-sm text-red-600 mt-1">{error}</p>
             </div>
           </div>
         )}
@@ -83,26 +83,26 @@ export default function MetaArchitect() {
             <div className="xa-card p-6">
               <div className="flex items-center gap-2 mb-4">
                 <CheckCircle2 className="w-5 h-5 text-green-600" />
-                <h2 className="font-heading font-bold text-lg text-white">Agent complete — {result.steps_executed} tool steps</h2>
+                <h2 className="font-heading font-bold text-lg text-black">Agent complete — {result.steps_executed} tool steps</h2>
               </div>
-              <div className="flex items-center gap-2 text-sm text-white/60 mb-4">
+              <div className="flex items-center gap-2 text-sm text-black/60 mb-4">
                 <Cpu className="w-4 h-4" /> <span className="font-mono">{result.architecture}</span>
               </div>
-              <div className="rounded-lg bg-[#171717] border border-[#2a2a2a] p-4">
-                <p className="text-xs uppercase tracking-wide text-white/40 font-bold mb-2">Mission brief</p>
-                <p className="text-sm text-white whitespace-pre-wrap leading-relaxed">{result.final_brief}</p>
+              <div className="rounded-lg bg-[#FAFAFA] border border-[#E5E7EB] p-4">
+                <p className="text-xs uppercase tracking-wide text-black/40 font-bold mb-2">Mission brief</p>
+                <p className="text-sm text-black whitespace-pre-wrap leading-relaxed">{result.final_brief}</p>
               </div>
             </div>
 
             <div className="xa-card p-6">
-              <h3 className="font-heading font-bold text-white mb-4 flex items-center gap-2"><Wrench className="w-4 h-4" /> Tool execution trace</h3>
+              <h3 className="font-heading font-bold text-black mb-4 flex items-center gap-2"><Wrench className="w-4 h-4" /> Tool execution trace</h3>
               <ol className="space-y-2">
                 {result.trace.map((t, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
-                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#1a1a1a] text-white font-bold text-xs flex items-center justify-center">{i + 1}</span>
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FFF7B3] text-black font-bold text-xs flex items-center justify-center">{i + 1}</span>
                     <div>
-                      <p className="font-semibold text-white">{STAGE_LABELS[t.stage] || t.stage}</p>
-                      <p className="text-white/50 font-mono text-xs mt-0.5">{JSON.stringify({ ...t, stage: undefined, at: undefined }).replace(/^\{|:undefined|"|\}$/g, m => m === "{" || m === "}" ? "" : m)}</p>
+                      <p className="font-semibold text-black">{STAGE_LABELS[t.stage] || t.stage}</p>
+                      <p className="text-black/50 font-mono text-xs mt-0.5">{JSON.stringify({ ...t, stage: undefined, at: undefined }).replace(/^\{|:undefined|"|\}$/g, m => m === "{" || m === "}" ? "" : m)}</p>
                     </div>
                   </li>
                 ))}
@@ -118,7 +118,7 @@ export default function MetaArchitect() {
 
         {!result && !error && !running && (
           <div className="xa-card p-10 text-center">
-            <p className="text-white/50">Set a goal and press <span className="font-bold text-white">Launch agent loop</span>. The agent will think and act on its own.</p>
+            <p className="text-black/50">Set a goal and press <span className="font-bold text-black">Launch agent loop</span>. The agent will think and act on its own.</p>
           </div>
         )}
       </section>

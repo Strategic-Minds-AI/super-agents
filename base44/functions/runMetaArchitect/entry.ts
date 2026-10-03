@@ -3,7 +3,6 @@ import { secrets } from 'base44:runtime';
 import { ToolLoopAgent, tool, stepCountIs, hasToolCall } from 'npm:ai@7.0.16';
 import { createOpenAICompatible } from 'npm:@ai-sdk/openai-compatible@3.0.5';
 import { z } from 'npm:zod@4.4.3';
-import { callAI } from '../../shared/aiRouter.ts';
 
 // META ARCHITECT — a real code agent.
 // This is an LLM running a genuine tool loop (same architecture that powers a builder agent),
@@ -106,15 +105,11 @@ Rules:
           inputSchema: z.object({ query: z.string() }),
           execute: async ({ query }) => {
             log('webSearch', { query });
-            const vercelKey = secrets.get('AI_GATEWAY_API_KEY') || secrets.get('VERCEL_AI_GATEWAY_KEY');
-            const { result } = await callAI(base44, {
-              vercelKey,
-              taskType: 'web_search',
-              systemPrompt: 'You are a web research assistant. Return a concise factual summary with any relevant URLs you know.',
-              userPrompt: `Research: ${query}. Include any URLs you find.`,
-              useWebSearch: true,
+            const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
+              prompt: `Search the web and return a concise factual summary for: ${query}. Include any URLs you find.`,
+              add_context_from_internet: true
             });
-            return { summary: typeof result === 'string' ? result : JSON.stringify(result).slice(0, 2000) };
+            return { summary: typeof res === 'string' ? res : JSON.stringify(res).slice(0, 2000) };
           }
         }),
 

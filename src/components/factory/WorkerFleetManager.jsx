@@ -44,21 +44,21 @@ export default function WorkerFleetManager() {
     <section className="xa-card p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center"><Server className="w-5 h-5 text-[#B8C5D6]" /></div>
+          <div className="w-9 h-9 rounded-lg bg-[#FFF7B3] flex items-center justify-center"><Server className="w-5 h-5 text-[#8A7300]" /></div>
           <div>
-            <h2 className="font-heading font-bold text-lg text-white">Worker Fleet</h2>
-            <p className="text-xs text-white/50">Spin up multiple autonomous workers — each with its own config</p>
+            <h2 className="font-heading font-bold text-lg text-black">Worker Fleet</h2>
+            <p className="text-xs text-black/50">Spin up multiple autonomous workers — each with its own config</p>
           </div>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="xa-btn-primary"><Plus className="w-4 h-4" /> New worker</button>
       </div>
 
       {showForm && (
-        <div className="mb-4 p-4 rounded-xl bg-[#171717] border border-[#2a2a2a] space-y-3">
+        <div className="mb-4 p-4 rounded-xl bg-[#FAFAFA] border border-[#E5E7EB] space-y-3">
           <input className="xa-input" placeholder="Worker name (e.g. 'Growth Worker 1')" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
           <div className="grid grid-cols-2 gap-3">
-            <label className="text-xs"><span className="font-bold text-white/60 block mb-1">Poll interval (ms)</span><input type="number" className="xa-input" value={form.poll_interval} onChange={e => setForm({ ...form, poll_interval: +e.target.value })} /></label>
-            <label className="text-xs"><span className="font-bold text-white/60 block mb-1">Max cycles</span><input type="number" className="xa-input" value={form.max_cycles} onChange={e => setForm({ ...form, max_cycles: +e.target.value })} /></label>
+            <label className="text-xs"><span className="font-bold text-black/60 block mb-1">Poll interval (ms)</span><input type="number" className="xa-input" value={form.poll_interval} onChange={e => setForm({ ...form, poll_interval: +e.target.value })} /></label>
+            <label className="text-xs"><span className="font-bold text-black/60 block mb-1">Max cycles</span><input type="number" className="xa-input" value={form.max_cycles} onChange={e => setForm({ ...form, max_cycles: +e.target.value })} /></label>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <select className="xa-input" value={form.focus_area} onChange={e => setForm({ ...form, focus_area: e.target.value })}>
@@ -73,19 +73,19 @@ export default function WorkerFleetManager() {
         </div>
       )}
 
-      {loading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-[#5B7FA8]" /></div> : workers.length === 0 ? (
-        <div className="text-center py-8"><Cpu className="w-8 h-8 mx-auto text-white/20" /><p className="text-sm text-white/50 mt-2">No workers yet. Create one to start spinning up systems.</p></div>
+      {loading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-[#CCBB00]" /></div> : workers.length === 0 ? (
+        <div className="text-center py-8"><Cpu className="w-8 h-8 mx-auto text-black/20" /><p className="text-sm text-black/50 mt-2">No workers yet. Create one to start spinning up systems.</p></div>
       ) : (
         <div className="space-y-2">
           {workers.map(w => (
-            <div key={w.id} className="p-3 rounded-xl bg-[#171717] border border-[#2a2a2a] flex items-center gap-3">
-              <div className={`w-2 h-10 rounded-full ${w.active ? "bg-green-400" : "bg-[#3a3a3a]"}`} />
+            <div key={w.id} className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E7EB] flex items-center gap-3">
+              <div className={`w-2 h-10 rounded-full ${w.active ? "bg-green-400" : "bg-gray-300"}`} />
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-white text-sm truncate">{w.name}</div>
-                <div className="text-xs text-white/45">{w.poll_interval / 1000}s · {w.max_cycles} cycles · {FOCUS_LABELS[w.focus_area]} · {DEPLOY_LABELS[w.deploy_target]}</div>
+                <div className="font-bold text-black text-sm truncate">{w.name}</div>
+                <div className="text-xs text-black/45">{w.poll_interval / 1000}s · {w.max_cycles} cycles · {FOCUS_LABELS[w.focus_area]} · {DEPLOY_LABELS[w.deploy_target]}</div>
               </div>
-              <button onClick={() => copyConfig(w)} className="p-2 rounded-lg hover:bg-[#212121] border border-transparent hover:border-[#2a2a2a]"><Copy className="w-4 h-4 text-white/50" /></button>
-              <button onClick={() => remove(w.id)} className="p-2 rounded-lg hover:bg-[#1f0d0d]"><Trash2 className="w-4 h-4 text-red-400" /></button>
+              <button onClick={() => copyConfig(w)} className="p-2 rounded-lg hover:bg-white border border-transparent hover:border-[#E5E7EB]"><Copy className="w-4 h-4 text-black/50" /></button>
+              <button onClick={() => remove(w.id)} className="p-2 rounded-lg hover:bg-red-50"><Trash2 className="w-4 h-4 text-red-400" /></button>
             </div>
           ))}
         </div>

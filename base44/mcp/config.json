@@ -3,47 +3,6 @@
   "tools": {
     "functions": [
       {
-        "name": "super_agent",
-        "title": "XTREME Super Agent",
-        "description": "Primary governed MCP surface for the Strategic Minds Super Agent Zero fleet. Routes status, durable swarm execution, heartbeat, architecture, template, batch, growth, repository, domain and provisioning requests through one stable interface while preserving approval gates.",
-        "input_schema": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "string",
-              "enum": [
-                "status",
-                "chat",
-                "run_loop",
-                "heartbeat",
-                "generate_template",
-                "architect",
-                "batch",
-                "growth",
-                "create_repo",
-                "domain_discovery",
-                "domain_check",
-                "provisioning"
-              ],
-              "description": "Operation to route through the unified Super Agent surface."
-            },
-            "payload": {
-              "type": "object",
-              "description": "Operation-specific arguments. Protected actions remain approval-gated."
-            }
-          },
-          "required": [
-            "action"
-          ]
-        },
-        "handler": "superAgentGateway",
-        "annotations": {
-          "read_only_hint": false,
-          "destructive_hint": false,
-          "idempotent_hint": false
-        }
-      },
-      {
         "name": "audit_domain",
         "title": "Audit Domain Growth",
         "description": "Run a live autonomous growth audit on a domain — fetches robots.txt, discovers sitemap, counts indexed URLs, computes a health score (0-100), updates the Domain registry record, and dispatches follow-up tasks (sitemap submission, GA4 setup). Call this when you want to assess or improve a domain's SEO health.",
@@ -55,9 +14,7 @@
               "description": "The domain to audit, e.g. 'benearme.com' (no protocol, no trailing slash)"
             }
           },
-          "required": [
-            "domain"
-          ]
+          "required": ["domain"]
         },
         "handler": "runGrowthMission",
         "annotations": {
@@ -135,48 +92,26 @@
               "type": "object",
               "description": "Base spec template for each site. Fields: title, build_type, what_to_build, how_it_looks, how_it_functions, what_it_connects_to, what_it_says, how_it_operates, deliver_to. Use {variable_name} placeholders for per-site substitution.",
               "properties": {
-                "title": {
-                  "type": "string"
-                },
-                "build_type": {
-                  "type": "string"
-                },
-                "what_to_build": {
-                  "type": "string"
-                },
-                "how_it_looks": {
-                  "type": "string"
-                },
-                "how_it_functions": {
-                  "type": "string"
-                },
-                "what_it_connects_to": {
-                  "type": "string"
-                },
-                "what_it_says": {
-                  "type": "string"
-                },
-                "how_it_operates": {
-                  "type": "string"
-                },
-                "deliver_to": {
-                  "type": "string"
-                }
+                "title": { "type": "string" },
+                "build_type": { "type": "string" },
+                "what_to_build": { "type": "string" },
+                "how_it_looks": { "type": "string" },
+                "how_it_functions": { "type": "string" },
+                "what_it_connects_to": { "type": "string" },
+                "what_it_says": { "type": "string" },
+                "how_it_operates": { "type": "string" },
+                "deliver_to": { "type": "string" }
               }
             },
             "variables": {
               "type": "array",
               "description": "Array of variable objects, one per site. Each object's keys replace {placeholders} in the template. Can include a 'domain' key to set the site's domain.",
-              "items": {
-                "type": "object"
-              }
+              "items": { "type": "object" }
             },
             "deploy_targets": {
               "type": "array",
               "description": "Deployment targets: 'railway', 'vercel', 'github', 'custom'.",
-              "items": {
-                "type": "string"
-              }
+              "items": { "type": "string" }
             },
             "free_mode": {
               "type": "boolean",
@@ -204,10 +139,7 @@
               "default": true
             }
           },
-          "required": [
-            "name",
-            "batch_size"
-          ]
+          "required": ["name", "batch_size"]
         },
         "handler": "runBatchOperation",
         "annotations": {
@@ -233,9 +165,7 @@
               "default": false
             }
           },
-          "required": [
-            "domain"
-          ]
+          "required": ["domain"]
         },
         "handler": "runDomainBuyer",
         "annotations": {
@@ -261,9 +191,7 @@
               "default": "com,net,store,online"
             }
           },
-          "required": [
-            "keywords"
-          ]
+          "required": ["keywords"]
         },
         "handler": "runDomainDiscovery",
         "annotations": {
@@ -284,9 +212,7 @@
               "description": "The high-level goal or objective, e.g. 'Audit and grow benearme.com end to end' or 'Find 10 available domains in the dental niche and build sites for them'"
             }
           },
-          "required": [
-            "goal"
-          ]
+          "required": ["goal"]
         },
         "handler": "runMetaArchitect",
         "annotations": {
@@ -311,9 +237,7 @@
               "description": "Repository description. Defaults to 'Auto-generated by Website Factory'."
             }
           },
-          "required": [
-            "repo_name"
-          ]
+          "required": ["repo_name"]
         },
         "handler": "runRepoGenerator",
         "annotations": {
