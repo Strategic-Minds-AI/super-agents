@@ -1,0 +1,47 @@
+name: Worker Auth CI
+
+on:
+  pull_request:
+    paths:
+      - 'base44/shared/workerAuth.ts'
+      - 'base44/functions/runAgentLoop/entry.ts'
+      - 'local-worker/**'
+      - '.github/workflows/worker-auth-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  worker-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax check worker
+        run: node --check local-worker/worker.js
+
+      - name: Syntax check key generator
+        run: node --check local-worker/generate-worker-key.mjs
+
+      - name: Protocol tests
+        run: node --experimental-strip-types local-worker/test-worker-auth.mjs
+
+      - name: Key generator safety test
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cd "$tmp"
+          node "$GITHUB_WORKSPACE/local-worker/generate-worker-key.mjs" orchestrator > generator.out
+          test -f .worker-keys/orchestrator-v1.private.pkcs8.b64
+          test -f .worker-keys/orchestrator-v1.public.json
+          test "$(stat -c '%a' .worker-keys/orchestrator-v1.private.pkcs8.b64)" = "600"
+          private_value="$(cat .worker-keys/orchestrator-v1.private.pkcs8.b64)"
+          ! grep -Fq "$private_value" generator.out
+          grep -Fq '"private_key_printed": false' generator.out
