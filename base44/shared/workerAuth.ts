@@ -68,6 +68,10 @@ export async function verifySignedWorkerRequest(
       return { ok: false, reason: 'timestamp_out_of_window', method: 'ecdsa-p256', key_id: keyId };
     }
 
+    if (!expectedAgent) {
+      return { ok: false, reason: 'agent_required', method: 'ecdsa-p256', key_id: keyId };
+    }
+
     const trusted = TRUSTED_WORKER_KEYS[keyId];
     if (!trusted?.spki_base64) {
       return { ok: false, reason: 'untrusted_key', method: 'ecdsa-p256', key_id: keyId };
