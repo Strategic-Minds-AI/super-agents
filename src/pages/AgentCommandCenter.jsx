@@ -1,54 +1,122 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Mic, ChevronDown, Globe2, Telescope, Image, FileText, Code2, MoreHorizontal, CalendarDays, Github, Mail, Users, Eye, Wrench, ShieldCheck, BarChart3, ExternalLink } from "lucide-react";
+import {
+  ArrowUp, Plus, Mic, Paperclip, Globe2, ChevronDown, MoreHorizontal,
+  Boxes, Search, ServerCog, Sparkles, Brain, Activity, GitBranch, Database,
+  Container, ShieldCheck, Clock3
+} from "lucide-react";
+import { runtime } from "@/lib/runtimeClient";
 
-const agents = [
-  {name:"Apex", desc:"Strategy & analysis", icon:Users, tone:"violet", path:"/agents/orchestrator"},
-  {name:"Vision Cortex", desc:"Research & insight", icon:Eye, tone:"blue", path:"/architect"},
-  {name:"Builder", desc:"Build & implement", icon:Wrench, tone:"orange", path:"/agents/code_architect"},
-  {name:"Validator", desc:"QA & verification", icon:ShieldCheck, tone:"green", path:"/mission-control"},
-  {name:"Growth Operator", desc:"Marketing & growth", icon:BarChart3, tone:"pink", path:"/agents/growth_operator"},
-];
-const chips=[
-  {Icon:Globe2,label:"Search"},{Icon:Telescope,label:"Deep research"},{Icon:Image,label:"Create image"},
-  {Icon:FileText,label:"Summarize"},{Icon:Code2,label:"Code"},{Icon:MoreHorizontal,label:"More"}
+const projects=[
+  {name:"AI HUB",desc:"Unified orchestration, MCP routes, workers and runtime control.",Icon:Boxes,path:"/mission-control",status:"Active",meta:"12 agents · 4 runtimes"},
+  {name:"DIGITAL DOMINANCE",desc:"SEO, AEO, GEO and automated growth operations.",Icon:Search,path:"/agents/growth_operator",status:"Active",meta:"Growth Operator"},
+  {name:"JARVIS",desc:"Persistent local Docker worker fabric and execution node.",Icon:ServerCog,path:"/work",status:"Online",meta:"10 workers"},
+  {name:"WEBSITE FACTORY",desc:"Universal build, visual validation and replication pipeline.",Icon:Sparkles,path:"/website-factory",status:"Ready",meta:"Factory runtime"},
 ];
 
-export default function AgentCommandCenter() {
-  const navigate = useNavigate();
-  const [mode,setMode]=useState("Chat");
+const quick=[
+  {label:"Build an app",Icon:GitBranch,path:"/agents/code_architect"},
+  {label:"Research",Icon:Globe2,path:"/architect"},
+  {label:"Run swarm",Icon:Brain,path:"/agents/swarm"},
+  {label:"Validate system",Icon:ShieldCheck,path:"/mission-control"},
+];
+
+export default function AgentCommandCenter(){
+  const navigate=useNavigate();
   const [input,setInput]=useState("");
-  const send=()=>{ if(input.trim()) navigate("/agents/orchestrator"); };
+  const [busy,setBusy]=useState(false);
+
+  const send=async()=>{
+    const message=input.trim();
+    if(!message||busy) return;
+    setBusy(true);
+    try{
+      const conv=await runtime.createConversation({agent_name:"orchestrator",metadata:{source:"apex_portal"}});
+      await runtime.sendMessage(conv.id,{role:"user",content:message});
+      navigate("/agents/orchestrator");
+    }catch{
+      navigate("/agents/orchestrator");
+    }finally{
+      setBusy(false);setInput("");
+    }
+  };
+
   return (
-    <div className="h-full flex bg-[#111111]">
-      <section className="flex-1 min-w-0 relative flex flex-col">
-        <div className="h-[64px] flex justify-center items-center">
-          <div className="gpt-mode-switch">{["Chat","Work"].map(m=><button key={m} onClick={()=>{setMode(m); if(m==="Work") navigate("/work")}} className={mode===m?"active":""}>{m}</button>)}</div>
+    <div className="h-full bg-[#0f1012] text-[#eef1f5] flex flex-col overflow-hidden">
+      <header className="h-[62px] px-6 flex items-center border-b border-[#22252a] shrink-0">
+        <div>
+          <div className="text-sm font-semibold tracking-wide">APEX</div>
+          <div className="text-[11px] text-[#717985]">Command workspace</div>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center px-8 pb-28">
-          <h1 className="text-[31px] font-medium tracking-tight mb-10 text-center">What’s on your mind today?</h1>
-          <div className="gpt-composer max-w-[860px] w-full">
-            <button className="gpt-circle"><Plus size={22}/></button>
-            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Ask ChatGPT" />
-            <button className="flex items-center gap-1 text-[#b9b9b9] text-[15px] px-2">Medium <ChevronDown size={15}/></button>
-            <button className="gpt-circle border-0"><Mic size={20}/></button>
-            <button onClick={send} className="w-11 h-11 rounded-full bg-[#2f70df] flex items-center justify-center text-white"><div className="flex gap-[2px] items-center">{[8,16,23,13,19].map((h,i)=><span key={i} className="w-[2px] rounded bg-white" style={{height:h}} />)}</div></button>
+        <div className="ml-auto flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2 h-8 px-3 rounded-full border border-[#2a2e34] bg-[#15171a] text-[11px] text-[#a4adb8]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"/> Persistent runtime online
           </div>
-          <div className="max-w-[860px] w-full flex flex-wrap gap-2 mt-4">{chips.map(({Icon,label})=><button key={label} className="gpt-tool-chip"><Icon size={18}/>{label}</button>)}</div>
-          <div className="max-w-[770px] w-full mt-11 space-y-5 text-[15px]">
-            <button onClick={()=>navigate("/mission-control")} className="gpt-suggestion"><CalendarDays size={23} className="text-blue-400"/>Oct 4–6 XPS social drafts make hard claims. Validate evidence before use.</button>
-            <button onClick={()=>navigate("/provisioning")} className="gpt-suggestion"><Github size={23}/>BNM Railway builds failed after Docker fix. Diagnose both production services.</button>
-            <button onClick={()=>navigate("/mission-control")} className="gpt-suggestion"><Mail size={23} className="text-red-400"/>OpenAI API continuity changed. Map which runtimes rely on direct credits.</button>
-          </div>
+          <button className="w-8 h-8 rounded-lg hover:bg-[#1a1d21] flex items-center justify-center text-[#87909b]"><MoreHorizontal size={18}/></button>
         </div>
-        <div className="absolute bottom-5 left-0 right-0 text-center text-[12px] text-[#9a9a9a]">ChatGPT can make mistakes. Workspace data isn’t used to train models.</div>
-      </section>
-      <aside className="hidden xl:block w-[308px] border-l border-[#242424] p-4"><div className="gpt-swarm-card">
-        <div className="flex items-center justify-between mb-5"><div className="flex items-center gap-2"><span className="font-semibold text-[16px]">Swarm</span><span className="text-xs px-2 py-0.5 rounded-full border border-blue-500/40 text-blue-300">Beta</span></div><ChevronDown size={18}/></div>
-        <div className="flex items-center gap-2 text-xs text-[#b0b0b0] mb-4"><span className="w-2 h-2 rounded-full bg-emerald-400"/>5 agents online</div>
-        <div className="space-y-3">{agents.map(({name,desc,icon:Icon,tone,path})=><button key={name} onClick={()=>navigate(path)} className="w-full flex items-center gap-3 text-left rounded-lg p-2 hover:bg-[#202020]"><div className={"agent-dot "+tone}><Icon size={19}/></div><div className="min-w-0"><div className="text-sm font-medium">{name}</div><div className="text-xs text-[#929292]">{desc}</div><div className="text-[11px] text-emerald-400 mt-0.5">● Online</div></div><MoreHorizontal size={16} className="ml-auto text-[#9a9a9a]"/></button>)}</div>
-        <button onClick={()=>navigate("/agents/orchestrator")} className="mt-5 w-full h-11 rounded-xl border border-[#393939] bg-[#202020] hover:bg-[#272727] flex items-center justify-center gap-2 text-sm font-medium"><ExternalLink size={15}/>Open Swarm</button>
-      </div></aside>
+      </header>
+
+      <div className="flex-1 overflow-y-auto xa-scroll">
+        <div className="max-w-[1060px] mx-auto px-6 pt-[72px] pb-36">
+          <section className="text-center">
+            <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-br from-[#e5ebf2] via-[#90a5bd] to-[#526f91] text-[#11151a] flex items-center justify-center shadow-[0_10px_35px_rgba(74,111,165,.18)]"><Brain size={24}/></div>
+            <h1 className="mt-5 text-[34px] md:text-[40px] font-semibold tracking-[-0.035em]">How can I help you today?</h1>
+            <p className="mt-3 text-[14px] text-[#858e99]">APEX can plan, build, research, coordinate the swarm, validate, and continue work through your persistent runtime.</p>
+          </section>
+
+          <section className="mt-10">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-[#cfd5dc]">Active Projects</h2>
+              <button onClick={()=>navigate("/projects")} className="text-xs text-[#7f91a7] hover:text-[#b8c7d8]">View all</button>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              {projects.map(({name,desc,Icon,path,status,meta})=>(
+                <button key={name} onClick={()=>navigate(path)} className="apex-project-card text-left">
+                  <div className="flex items-start">
+                    <div className="w-10 h-10 rounded-xl bg-[#1b1e23] border border-[#2b3037] flex items-center justify-center text-[#aebed0]"><Icon size={19}/></div>
+                    <div className="ml-3 min-w-0">
+                      <div className="font-semibold text-[14px] tracking-wide">{name}</div>
+                      <div className="mt-1 text-[12px] leading-5 text-[#7f8791]">{desc}</div>
+                    </div>
+                    <MoreHorizontal size={17} className="ml-auto text-[#5f6770]"/>
+                  </div>
+                  <div className="mt-4 flex items-center gap-2 text-[11px]">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#15181c] border border-[#292d33] text-[#9da7b2]"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"/>{status}</span>
+                    <span className="text-[#656d77]">{meta}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-7">
+            <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-semibold text-[#cfd5dc]">Start with APEX</h2><span className="text-[11px] text-[#646c76]">Super Agent Zero</span></div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              {quick.map(({label,Icon,path})=><button key={label} onClick={()=>navigate(path)} className="h-[76px] rounded-xl border border-[#272b31] bg-[#141619] hover:bg-[#191c20] hover:border-[#3b4653] transition-all flex flex-col items-start justify-between p-3 text-left"><Icon size={17} className="text-[#95a8bd]"/><span className="text-[12px] font-medium">{label}</span></button>)}
+            </div>
+          </section>
+
+          <section className="mt-7 grid md:grid-cols-3 gap-2.5">
+            <div className="apex-status-card"><Activity size={15}/><div><div className="text-[11px] text-[#717985]">Runtime</div><div className="text-[12px] font-medium">Agent Factory online</div></div></div>
+            <div className="apex-status-card"><Database size={15}/><div><div className="text-[11px] text-[#717985]">State</div><div className="text-[12px] font-medium">Durable queue active</div></div></div>
+            <div className="apex-status-card"><Container size={15}/><div><div className="text-[11px] text-[#717985]">Workers</div><div className="text-[12px] font-medium">Docker + Railway</div></div></div>
+          </section>
+        </div>
+      </div>
+
+      <div className="absolute lg:left-[286px] left-0 right-0 bottom-0 pointer-events-none">
+        <div className="max-w-[820px] mx-auto px-5 pb-5 pointer-events-auto">
+          <div className="apex-composer">
+            <button className="apex-compose-icon"><Plus size={19}/></button>
+            <button className="apex-compose-icon hidden sm:flex"><Paperclip size={17}/></button>
+            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="+ Ask APEX anything…" />
+            <button className="hidden md:flex items-center gap-1.5 px-2 text-[11px] text-[#7c8590]">GPT-5.6 <ChevronDown size={12}/></button>
+            <button className="apex-compose-icon"><Mic size={18}/></button>
+            <button onClick={send} disabled={!input.trim()||busy} className="apex-send"><ArrowUp size={17}/></button>
+          </div>
+          <div className="mt-2 flex justify-center items-center gap-3 text-[10px] text-[#59616b]"><span className="flex items-center gap-1"><Clock3 size={11}/>Persistent</span><span>•</span><span>Governed execution</span><span>•</span><span>Independent validation</span></div>
+        </div>
+      </div>
     </div>
   );
 }
