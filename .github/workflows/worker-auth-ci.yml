@@ -1,4 +1,5 @@
 name: Worker Auth CI
+# exact-head validation refresh
 
 on:
   pull_request:
