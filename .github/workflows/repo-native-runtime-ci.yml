@@ -1,0 +1,94 @@
+name: Repo Native Runtime CI
+
+on:
+  pull_request:
+    paths:
+      - 'agents/**'
+      - 'runtime/**'
+      - 'local-worker/**'
+      - 'docker-compose.yml'
+      - '.env.example'
+      - '.github/workflows/repo-native-runtime-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      POSTGRES_PASSWORD: ci-postgres-password
+      RUNTIME_TOKEN: ci-runtime-token
+      OPENAI_API_KEY: ''
+      OPENAI_MODEL: gpt-6-luna
+      SOURCE_SHA: ci
+      POLL_INTERVAL: '60000'
+      MAX_CYCLES: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Runtime syntax checks
+        working-directory: runtime
+        run: |
+          npm install
+          npm run check
+
+      - name: Worker syntax check
+        run: node --check local-worker/worker.js
+
+      - name: Validate Docker Compose
+        run: docker compose config >/dev/null
+
+      - name: Start database and runtime
+        run: docker compose up -d --build postgres runtime
+
+      - name: Wait for runtime health
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:8080/health > /tmp/health.json; then
+              break
+            fi
+            sleep 2
+          done
+          jq -e '.ok == true' /tmp/health.json
+          jq -e '.agents | length == 8' /tmp/health.json
+
+      - name: Reject unauthorized worker request
+        shell: bash
+        run: |
+          status="$(curl -sS -o /tmp/unauth.json -w '%{http_code}'             -X POST http://127.0.0.1:8080/v1/run-once             -H 'Content-Type: application/json'             --data '{"agent_name":"orchestrator","worker_id":"ci"}')"
+          test "$status" = "401"
+
+      - name: Protected task governance integration test
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS             -X POST http://127.0.0.1:8080/v1/tasks             -H "Authorization: Bearer $RUNTIME_TOKEN"             -H 'Content-Type: application/json'             --data '{"agent_name":"orchestrator","task_type":"buy_domain","title":"CI protected task","domain":"example.test","autonomous":true}'             > /tmp/task.json
+
+          jq -e '.status == "pending"' /tmp/task.json
+
+          curl -fsS             -X POST http://127.0.0.1:8080/v1/run-once             -H "Authorization: Bearer $RUNTIME_TOKEN"             -H 'Content-Type: application/json'             --data '{"agent_name":"orchestrator","worker_id":"ci-orchestrator","max_cycles":1,"runtime":"ci"}'             > /tmp/run.json
+
+          jq -e '.actions | length == 1' /tmp/run.json
+          jq -e '.actions[0].status == "needs_approval"' /tmp/run.json
+
+          curl -fsS             http://127.0.0.1:8080/v1/status             -H "Authorization: Bearer $RUNTIME_TOKEN"             > /tmp/status.json
+
+          jq -e '[.tasks[] | select(.status == "needs_approval")][0].count == 1' /tmp/status.json
+
+      - name: Show runtime logs on failure
+        if: failure()
+        run: docker compose logs --no-color postgres runtime
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
