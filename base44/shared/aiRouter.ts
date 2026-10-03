@@ -1,6 +1,8 @@
+import { gatewayCompletion } from './vercelGateway.ts';
+
 // INTELLIGENT AI ROUTER — picks the best model for each task type.
-// Routes through Vercel AI Gateway (your own key, no Base44 credits) with
-// automatic fallback to Base44 InvokeLLM if the key is missing or the call fails.
+// Vercel AI Gateway only: missing keys and gateway failures are surfaced,
+// never redirected to Base44 AI.
 //
 // Design: every task has an optimal model. Planning needs deep reasoning;
 // template generation needs fast structured JSON; content needs a great
@@ -80,10 +82,10 @@ const ROUTING_TABLE: Record<TaskType, ModelConfig> = {
     reason: 'Analytical precision at low cost for repeated audit cycles',
   },
   web_search: {
-    model: 'openai/gpt-4o-mini',
+    model: 'perplexity/sonar',
     maxTokens: 2048,
     temperature: 0.3,
-    label: 'GPT-4o mini',
+    label: 'Live Web Research',
     reason: 'Web-grounded summarization, cost-effective for research volume',
   },
   quick_json: {
@@ -146,35 +148,10 @@ export async function callVercelGateway(opts: {
   };
   if (opts.jsonMode) body.response_format = { type: 'json_object' };
 
-  const res = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${opts.apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(opts.timeoutMs || 30000),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '');
-    throw new Error(`Vercel AI Gateway error (${res.status}): ${errText.slice(0, 300)}`);
-  }
-
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content || '';
-  return { content, model: cfg.model, provider: 'vercel_ai_gateway' };
+  return await gatewayCompletion(body, { apiKey: opts.apiKey, timeoutMs: opts.timeoutMs || 30000 });
 }
 
-// ── INTELLIGENT CALL — operates off the AI Gateway API key ──
-// This is the main entry point for all AI calls in the system.
-// When a gateway key is present (AI_GATEWAY_API_KEY / VERCEL_AI_GATEWAY_KEY),
-// the system runs EXCLUSIVELY on the gateway — no Base44 credit fallback.
-// If the gateway call fails, the error propagates so the caller (agent loop,
-// resilience layer) can handle it. Base44 InvokeLLM is only used as a dev
-// fallback when NO gateway key is configured at all.
-// Uses AI_GATEWAY_API_KEY (the standard Vercel env var) with fallback to
-// VERCEL_AI_GATEWAY_KEY for backward compatibility.
+// All callers use Vercel AI Gateway. There is no native-AI fallback.
 export async function callAI(base44, opts: {
   vercelKey?: string | null;
   taskType: TaskType;
@@ -184,40 +161,14 @@ export async function callAI(base44, opts: {
   useWebSearch?: boolean;
   timeoutMs?: number;
 }): Promise<{ result: any; provider: string; model: string; routedTask: string }> {
-  const cfg = getModelForTask(opts.taskType);
-
-  // ── Primary path: Vercel AI Gateway (your key, no Base44 credits) ──
-  if (opts.vercelKey) {
-    const { content, model, provider } = await callVercelGateway({
-      apiKey: opts.vercelKey,
-      taskType: opts.taskType,
-      systemPrompt: opts.systemPrompt,
-      userPrompt: opts.userPrompt + (opts.jsonSchema ? '\n\nReturn ONLY valid JSON matching this schema. No markdown, no explanation.' : ''),
-      jsonMode: !!opts.jsonSchema,
-      timeoutMs: opts.timeoutMs,
-    });
-
-    let parsed: any = content;
-    if (opts.jsonSchema) {
-      try { parsed = JSON.parse(content); } catch { parsed = content; }
-    }
-    return { result: parsed, provider, model, routedTask: opts.taskType };
-  }
-
-  // ── Dev fallback: Base44 InvokeLLM (only when no gateway key is set) ──
-  const llmOpts: any = {
-    prompt: `${opts.systemPrompt}\n\n${opts.userPrompt}`,
-  };
-  if (opts.jsonSchema) llmOpts.response_json_schema = opts.jsonSchema;
-  if (opts.useWebSearch) {
-    llmOpts.add_context_from_internet = true;
-    llmOpts.model = 'gemini_3_flash';
-  }
-
-  const result = await base44.asServiceRole.integrations.Core.InvokeLLM(llmOpts);
-  let parsed: any = result;
-  if (opts.jsonSchema && typeof result === 'string') {
-    try { parsed = JSON.parse(result); } catch { parsed = result; }
-  }
-  return { result: parsed, provider: 'base44_invoke_llm', model: 'automatic', routedTask: opts.taskType };
+  const { content, model, provider } = await callVercelGateway({
+    apiKey: opts.vercelKey,
+    taskType: opts.taskType,
+    systemPrompt: opts.systemPrompt,
+    userPrompt: opts.userPrompt + (opts.jsonSchema ? `\n\nReturn ONLY valid JSON matching this schema:\n${JSON.stringify(opts.jsonSchema)}` : ''),
+    jsonMode: !!opts.jsonSchema,
+    timeoutMs: opts.timeoutMs,
+  });
+  const result = opts.jsonSchema ? JSON.parse(content) : content;
+  return { result, provider, model, routedTask: opts.taskType };
 }

@@ -4,7 +4,7 @@ import { callAI } from '../../shared/aiRouter.ts';
 
 // TEMPLATE GENERATOR — uses the intelligent AI router to pick the best model
 // for template generation. Routes through Vercel AI Gateway (your key, no
-// Base44 credits) with automatic fallback to Base44 InvokeLLM.
+// Base44 AI fallback). Gateway failures are surfaced to the caller.
 
 export default async function(req) {
   try {

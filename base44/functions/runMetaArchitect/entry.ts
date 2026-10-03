@@ -1,9 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 import { secrets } from 'base44:runtime';
 import { ToolLoopAgent, tool, stepCountIs, hasToolCall } from 'npm:ai@7.0.16';
-import { createOpenAICompatible } from 'npm:@ai-sdk/openai-compatible@3.0.5';
 import { z } from 'npm:zod@4.4.3';
-import { callAI } from '../../shared/aiRouter.ts';
+import { createGatewayModels, getGatewayKey, searchGatewayWeb } from '../../shared/vercelGateway.ts';
 
 // META ARCHITECT — a real code agent.
 // This is an LLM running a genuine tool loop (same architecture that powers a builder agent),
@@ -24,16 +23,9 @@ export default async function(req) {
     const trace = [];
     const log = (stage, detail) => trace.push({ stage, ...detail, at: new Date().toISOString() });
 
-    // Operates exclusively off the AI Gateway API key (no Base44 credits).
-    const aiKey = secrets.get('AI_GATEWAY_API_KEY') || secrets.get('VERCEL_AI_GATEWAY_KEY');
-    if (!aiKey) {
-      return Response.json({ error: 'AI_GATEWAY_API_KEY or VERCEL_AI_GATEWAY_KEY secret is required — the system operates off the AI Gateway key.' }, { status: 500 });
-    }
-    const models = createOpenAICompatible({
-      name: 'vercel-ai-gateway',
-      baseURL: 'https://ai-gateway.vercel.sh/v1',
-      apiKey: aiKey,
-    });
+    // The same Vercel connection powers planning and the eight agent chats.
+    const aiKey = getGatewayKey();
+    const models = createGatewayModels();
 
     // TOOLS — real, scoped to this app's data. The agent decides which to call and in what order.
     const modelId = 'anthropic/claude-sonnet-4';
@@ -102,14 +94,7 @@ Rules:
           inputSchema: z.object({ query: z.string() }),
           execute: async ({ query }) => {
             log('webSearch', { query });
-            // Routes through the AI Gateway key (no Base44 credits).
-            const { result } = await callAI(base44, {
-              vercelKey: aiKey,
-              taskType: 'web_search',
-              systemPrompt: 'You are a research assistant. Return a concise factual summary for the query. Include any relevant URLs you know.',
-              userPrompt: query,
-            });
-            return { summary: typeof result === 'string' ? result : JSON.stringify(result).slice(0, 2000) };
+            return await searchGatewayWeb(query);
           }
         }),
 
@@ -130,7 +115,7 @@ Rules:
       stopWhen: [stepCountIs(12), hasToolCall('finalize')]
     });
 
-    log('agent_start', { goal, model: 'automatic' });
+    log('agent_start', { goal, model: modelId, provider: 'vercel_ai_gateway' });
 
     const { text } = await agent.generate({ prompt: goal });
 
@@ -142,7 +127,9 @@ Rules:
       autonomous: true,
       architecture: 'ToolLoopAgent (LLM + real tool loop)',
       steps_executed: trace.length,
-      final_brief: text,
+      final_brief: text || trace.find(item => item.stage === 'finalize')?.summary || 'Review the recorded actions below.',
+      ai_provider: 'vercel_ai_gateway',
+      ai_model: modelId,
       trace
     });
   } catch (error) {
