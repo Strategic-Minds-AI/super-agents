@@ -9,7 +9,12 @@ export type TrustedWorkerKey = {
 
 // Fail closed until explicit key provisioning populates this registry.
 // One key per lane is required; never reuse a private key across lanes.
-export const TRUSTED_WORKER_KEYS: Record<string, TrustedWorkerKey> = Object.freeze({});
+export const TRUSTED_WORKER_KEYS: Record<string, TrustedWorkerKey> = Object.freeze({
+  'orchestrator-v1': {
+    spki_base64: 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvciyqa36dXKKIgx7/GWroeWNPeXZAo8FpZJB9TbAPkiCNnEybdaVPvFhUz4V2rt2YYAY3aAFlFbkMtTHUlFJMQ==',
+    agents: ['orchestrator'],
+  },
+});
 
 const AUTH_VERSION = 'sma-v1';
 const MAX_SKEW_SECONDS = 90;
