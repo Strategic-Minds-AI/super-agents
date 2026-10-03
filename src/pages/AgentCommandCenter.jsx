@@ -1,94 +1,95 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AgentCard from "@/components/agents/AgentCard";
+import { Plus, Mic, ArrowUp, ChevronDown, Calendar, Code, Sparkles, Zap } from "lucide-react";
 
-const AGENTS = [
-  {
-    name: "orchestrator", label: "The Orchestrator", icon: "🧠", category: "Apex", apex: true,
-    description: "The apex master agent. Give it any business goal — it decomposes the work across stages, dispatches the specialist agents via the action queue, sequences the critical path, and reports a unified mission brief.",
-    skills: ["Decompose", "Dispatch", "Sequence", "Track", "Escalate", "Mission Control"]
-  },
-  {
-    name: "growth_operator", label: "Growth Operator", icon: "🛡️", category: "Operate", flagship: true,
-    description: "Autonomous Google growth engine — takes any URL end-to-end through Search Console, GA4, GTM, sitemaps, index coverage, competitor intelligence and continuous monitoring.",
-    skills: ["Search Console", "GA4", "GTM", "Sitemaps", "Indexing", "Competitors", "Analytics"]
-  },
-  {
-    name: "code_architect", label: "Code Architect", icon: "⚙️", category: "Build",
-    description: "Elite staff-engineer pair. Writes, reviews, refactors, debugs and ships production code across the full stack. Creates SystemBuild records and dispatches build tasks.",
-    skills: ["React", "TypeScript", "Python", "Refactor", "Debug", "SystemBuild", "Tests"]
-  },
-  {
-    name: "social_strategist", label: "Social Strategist", icon: "📣", category: "Grow",
-    description: "Owns the full social lifecycle — strategy, platform-native content, calendars, engagement playbooks and performance analysis. Dispatches social automation tasks.",
-    skills: ["Instagram", "TikTok", "LinkedIn", "Content", "Calendar", "Engagement", "Automation"]
-  },
-  {
-    name: "sales_engine", label: "Sales Engine", icon: "🚀", category: "Grow",
-    description: "Revenue super-agent from prospect to closed deal — ICPs, outreach sequences, qualification, pipeline, follow-up and closing playbooks. Dispatches outreach automation tasks.",
-    skills: ["Outbound", "Sequences", "MEDDIC", "Pipeline", "Forecasting", "Closing", "Automation"]
-  },
-  {
-    name: "brand_guardian", label: "Brand Guardian", icon: "✦", category: "Discover",
-    description: "Protects and amplifies the brand — voice, messaging, content strategy, copywriting and creative direction across every touchpoint. Dispatches content production tasks.",
-    skills: ["Voice", "Copy", "Content", "Positioning", "Style Guide", "Audit"]
-  },
-  {
-    name: "replicator", label: "The Replicator", icon: "🧬", category: "Apex",
-    description: "Fleet cloning super-agent. Clones and deploys the entire Xtreme AI agent architecture to new domains, systems, and Base44 apps — at any scale. Provisions SystemBuilds, launches BatchOperations, and dispatches replication tasks.",
-    skills: ["Clone", "Provision", "Batch Deploy", "Blueprint", "Scale", "Replicate"]
-  },
-  {
-    name: "swarm", label: "The Swarm", icon: "🐝", category: "Apex",
-    description: "Parallel coordination super-agent. Takes a single goal, splits it into independent subtasks, dispatches them across the specialist fleet simultaneously, aggregates results, and reports a unified output. Maximum throughput.",
-    skills: ["Parallel", "Decompose", "Dispatch All", "Aggregate", "Throughput", "Scale"]
-  }
+const SUGGESTIONS = [
+  { icon: Calendar, label: "What's on the schedule today?", to: "/mission-control" },
+  { icon: Code, label: "Review my latest system builds", to: "/factory" },
+  { icon: Sparkles, label: "Launch a growth mission", to: "/mission" },
+  { icon: Zap, label: "Run the autonomous agent loop", to: "/mission-control" },
 ];
-
-const CATEGORIES = ["All", "Apex", "Discover", "Build", "Grow", "Operate"];
 
 export default function AgentCommandCenter() {
   const navigate = useNavigate();
-  const [category, setCategory] = useState("All");
-  const filtered = category === "All" ? AGENTS : AGENTS.filter((a) => a.category === category);
+  const [input, setInput] = useState("");
+  const [mode, setMode] = useState("Chat");
+
+  const send = () => {
+    if (!input.trim()) return;
+    navigate("/agents/orchestrator");
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      <section className="border-b border-[#E5E7EB] bg-gradient-to-b from-[#FFF7B3]/30 to-white">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <span className="xa-pill-badge">XTREME SUPER AGENTS</span>
-          <h1 className="font-heading font-black text-4xl md:text-5xl text-black mt-4 leading-tight">Autonomous Agent Command Center</h1>
-          <p className="text-lg text-black/60 mt-4 max-w-2xl">A fleet of super-agents engineered like GPT — one for every stage of your business flow. Launch any agent, give it a goal, and it operates end to end on your Vercel AI Gateway.</p>
-          <div className="flex flex-wrap gap-3 mt-8">
-            <button onClick={() => navigate("/architect")} className="xa-btn-primary">✦ Launch Meta Architect</button>
-            <button onClick={() => navigate("/factory")} className="xa-btn-primary">🏗️ System Factory</button>
-            <button onClick={() => navigate("/batch")} className="xa-btn-primary">⚡ Batch Operations</button>
-            <button onClick={() => navigate("/website-factory")} className="xa-btn-primary">🏭 Website Factory</button>
-            <button onClick={() => navigate("/analytics")} className="xa-btn-primary">📊 Live Analytics</button>
-            <button onClick={() => navigate("/mission-control")} className="xa-btn-outline">⚡ Mission Control</button>
-            <button onClick={() => navigate("/mission")} className="xa-btn-outline">Growth Operator mission</button>
-            <button onClick={() => navigate("/agents/growth_operator")} className="xa-btn-outline">Chat Growth Operator</button>
-            <button onClick={() => navigate("/agents/replicator")} className="xa-btn-outline">🧬 Chat Replicator</button>
-            <button onClick={() => navigate("/agents/swarm")} className="xa-btn-outline">🐝 Chat Swarm</button>
-            <button onClick={() => navigate("/domains")} className="xa-btn-outline">Domain Registry</button>
-          </div>
-        </div>
-      </section>
+    <div className="flex flex-col items-center min-h-full bg-[#0D0D0D] text-white px-4">
+      {/* Chat / Work toggle */}
+      <div className="flex items-center gap-1 mt-6 mb-8 p-1 rounded-full border border-[#2F2F2F] bg-[#171717]">
+        {["Chat", "Work"].map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={`px-5 py-1.5 rounded-full text-sm font-semibold transition-all ${
+              mode === m
+                ? "text-white border border-[#C0C8D0]/30"
+                : "text-[#8A8F98] hover:text-white border border-transparent"
+            }`}
+            style={mode === m ? { background: "linear-gradient(135deg, rgba(232,237,242,0.1), rgba(123,150,184,0.2), rgba(74,111,165,0.15))" } : {}}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
 
-      <section className="max-w-6xl mx-auto px-6 py-12">
-        <div className="flex flex-wrap gap-2 mb-8">
-          {CATEGORIES.map((c) => (
-            <button key={c} onClick={() => setCategory(c)}
-              className={`px-5 py-2.5 rounded-full border text-sm font-semibold transition-all ${category === c ? "border-transparent text-black" : "border-[#E5E7EB] text-black/50 hover:border-[#FFEA00] hover:text-black"}`}
-              style={category === c ? { background: "linear-gradient(135deg,#FFF7B3,#FFEA00 20%,#E6D400 45%,#FFEE33 65%,#FFEA00 80%,#CCBB00)", boxShadow: "inset 0 1px #fff6, inset 0 -1px #8c6e0040, 0 1px 3px #00000026" } : {}}>
-              {c}
-            </button>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((a) => <AgentCard key={a.name} agent={a} onLaunch={(ag) => navigate(`/agents/${ag.name}`)} />)}
-        </div>
-      </section>
+      {/* Heading */}
+      <h1 className="font-heading font-bold text-3xl md:text-4xl text-white text-center mb-8">
+        What's on your mind today?
+      </h1>
+
+      {/* Input pill */}
+      <div className="w-full max-w-2xl xa-chat-input">
+        <button className="shrink-0 w-8 h-8 rounded-full border border-[#2F2F2F] flex items-center justify-center text-[#8A8F98] hover:text-white hover:border-[#3A3F4A] transition-all">
+          <Plus className="w-4 h-4" />
+        </button>
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          placeholder="Ask anything"
+          className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-[#5A5F68] min-w-0"
+        />
+        <button className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-[#8A8F98] hover:text-white transition-colors">
+          Medium <ChevronDown className="w-3 h-3" />
+        </button>
+        <button className="shrink-0 w-8 h-8 rounded-full text-[#8A8F98] hover:text-white transition-colors flex items-center justify-center">
+          <Mic className="w-4 h-4" />
+        </button>
+        <button
+          onClick={send}
+          className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white hover:brightness-110 transition-all"
+          style={{ background: "linear-gradient(135deg, #7B96B8, #4A6FA5)" }}
+        >
+          <ArrowUp className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Suggestion cards */}
+      <div className="w-full max-w-2xl mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {SUGGESTIONS.map(({ icon: Icon, label, to }) => (
+          <button
+            key={label}
+            onClick={() => navigate(to)}
+            className="xa-suggest-card flex items-center gap-3 text-left"
+          >
+            <Icon className="w-5 h-5 shrink-0 text-[#B8C5D6]" />
+            <span className="text-sm font-medium text-white">{label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <p className="mt-auto pt-8 pb-4 text-center text-xs text-[#5A5F68]">
+        Xtreme Super Agents can make mistakes. Workspace data isn't used to train models.
+      </p>
     </div>
   );
 }
