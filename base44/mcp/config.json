@@ -1,0 +1,277 @@
+{
+  "auth": "oauth",
+  "tools": {
+    "functions": [
+      {
+        "name": "audit_domain",
+        "title": "Audit Domain Growth",
+        "description": "Run a live autonomous growth audit on a domain — fetches robots.txt, discovers sitemap, counts indexed URLs, computes a health score (0-100), updates the Domain registry record, and dispatches follow-up tasks (sitemap submission, GA4 setup). Call this when you want to assess or improve a domain's SEO health.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "description": "The domain to audit, e.g. 'benearme.com' (no protocol, no trailing slash)"
+            }
+          },
+          "required": ["domain"]
+        },
+        "handler": "runGrowthMission",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": true
+        }
+      },
+      {
+        "name": "run_agent_loop",
+        "title": "Run Agent Loop",
+        "description": "Execute the hardened autonomous agent loop — pulls pending autonomous tasks from the queue, executes each one (SEO audits, sitemap submissions, domain purchases, system builds, Google/social connections, video generation, content optimization), sends report emails, and self-dispatches follow-up tasks. This is the swarm's execution engine. Call this to process the task queue and get work done.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "max_cycles": {
+              "type": "number",
+              "description": "Maximum execution cycles per run, 1-10. Defaults to 5.",
+              "default": 5
+            },
+            "agent_name": {
+              "type": "string",
+              "description": "Optional: restrict the loop to one agent (growth_operator, code_architect, social_strategist, sales_engine, brand_guardian). Omit to run all agents."
+            },
+            "report_email": {
+              "type": "string",
+              "description": "Optional: email address to send execution reports to after each task completes."
+            }
+          }
+        },
+        "handler": "runAgentLoop",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      },
+      {
+        "name": "run_heartbeat",
+        "title": "Run Autonomous Heartbeat",
+        "description": "Execute the autonomous heartbeat cycle — recovers stuck tasks, pulls due autonomous tasks, executes them, re-audits stale domains (not audited in 24h), and sends a summary email. This is the always-on reconciliation layer. Call this for a scheduled maintenance sweep.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "report_email": {
+              "type": "string",
+              "description": "Optional: email address to send the heartbeat summary report to."
+            }
+          }
+        },
+        "handler": "runAutonomousHeartbeat",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": true
+        }
+      },
+      {
+        "name": "dispatch_batch",
+        "title": "Dispatch Batch Operation",
+        "description": "Launch a batch operation — generates N site specs from a template + variables, creates SystemBuild records, and dispatches autonomous AgentTasks for every site across enabled phases (build, Google connect, social connect, video generation, content optimization). This is the mass site factory. Call this to build and deploy many sites at once.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name for this batch operation."
+            },
+            "batch_size": {
+              "type": "number",
+              "description": "Number of sites to build, 1-10000. Defaults to 1.",
+              "default": 1
+            },
+            "template": {
+              "type": "object",
+              "description": "Base spec template for each site. Fields: title, build_type, what_to_build, how_it_looks, how_it_functions, what_it_connects_to, what_it_says, how_it_operates, deliver_to. Use {variable_name} placeholders for per-site substitution.",
+              "properties": {
+                "title": { "type": "string" },
+                "build_type": { "type": "string" },
+                "what_to_build": { "type": "string" },
+                "how_it_looks": { "type": "string" },
+                "how_it_functions": { "type": "string" },
+                "what_it_connects_to": { "type": "string" },
+                "what_it_says": { "type": "string" },
+                "how_it_operates": { "type": "string" },
+                "deliver_to": { "type": "string" }
+              }
+            },
+            "variables": {
+              "type": "array",
+              "description": "Array of variable objects, one per site. Each object's keys replace {placeholders} in the template. Can include a 'domain' key to set the site's domain.",
+              "items": { "type": "object" }
+            },
+            "deploy_targets": {
+              "type": "array",
+              "description": "Deployment targets: 'railway', 'vercel', 'github', 'custom'.",
+              "items": { "type": "string" }
+            },
+            "free_mode": {
+              "type": "boolean",
+              "description": "If true (default), skips LLM planning and uses templates directly — zero AI credits. If false, enables video generation and LLM-based planning.",
+              "default": true
+            },
+            "google_connect": {
+              "type": "boolean",
+              "description": "Auto-connect Google (GSC, sitemap, indexing, GA4) for each site. Defaults to true.",
+              "default": true
+            },
+            "social_connect": {
+              "type": "boolean",
+              "description": "Auto-connect social platforms for each site. Defaults to true.",
+              "default": true
+            },
+            "video_generate": {
+              "type": "boolean",
+              "description": "Auto-generate promotional videos for each site. Only runs in non-free mode. Defaults to false.",
+              "default": false
+            },
+            "content_optimize": {
+              "type": "boolean",
+              "description": "Auto-optimize content for Google 100% score. Defaults to true.",
+              "default": true
+            }
+          },
+          "required": ["name", "batch_size"]
+        },
+        "handler": "runBatchOperation",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      },
+      {
+        "name": "check_domain",
+        "title": "Check or Buy Domain",
+        "description": "Check domain availability and price via GoDaddy API, or optionally purchase it. Updates the DomainInventory registry. Call this to see if a domain is available and what it costs, or to buy it.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "description": "The domain to check or buy, e.g. 'smileco.com'"
+            },
+            "buy": {
+              "type": "boolean",
+              "description": "If true, attempt to purchase the domain using the saved RegistrarProfile contact info. If false or omitted, only check availability and price.",
+              "default": false
+            }
+          },
+          "required": ["domain"]
+        },
+        "handler": "runDomainBuyer",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      },
+      {
+        "name": "discover_domains",
+        "title": "Discover Available Domains",
+        "description": "Discover available domains across TLDs using RDAP. Generates keyword variations (my, the, hq, get, co, pro, best prefixes), checks availability in parallel, and stores available domains in the DomainInventory. Call this to find buyable domains for a niche.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "keywords": {
+              "type": "string",
+              "description": "Comma-separated seed keywords, e.g. 'smile,dental,teeth'"
+            },
+            "tlds": {
+              "type": "string",
+              "description": "Comma-separated TLDs to check, e.g. 'com,net,store,online'. Defaults to 'com,net,store,online'.",
+              "default": "com,net,store,online"
+            }
+          },
+          "required": ["keywords"]
+        },
+        "handler": "runDomainDiscovery",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": true
+        }
+      },
+      {
+        "name": "run_meta_architect",
+        "title": "Run Meta Architect",
+        "description": "Run the apex Meta Architect agent — an LLM with a real tool loop that inspects the domain registry and task queue, decomposes a goal, dispatches real AgentTask records, runs growth missions, and returns a mission brief. This is the strategic brain of the swarm. Call this with a high-level goal and it will plan and act autonomously.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "goal": {
+              "type": "string",
+              "description": "The high-level goal or objective, e.g. 'Audit and grow benearme.com end to end' or 'Find 10 available domains in the dental niche and build sites for them'"
+            }
+          },
+          "required": ["goal"]
+        },
+        "handler": "runMetaArchitect",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      },
+      {
+        "name": "create_repo",
+        "title": "Create GitHub Repo",
+        "description": "Create a new GitHub repository using the authorized GitHub connector. Returns the repo URL and clone URL. Call this when a site needs a code repository to deploy from.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "repo_name": {
+              "type": "string",
+              "description": "Repository name, e.g. 'smileco-site'"
+            },
+            "description": {
+              "type": "string",
+              "description": "Repository description. Defaults to 'Auto-generated by Website Factory'."
+            }
+          },
+          "required": ["repo_name"]
+        },
+        "handler": "runRepoGenerator",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      },
+      {
+        "name": "generate_template",
+        "title": "Generate Website Template",
+        "description": "Generate a production-ready, SEO-optimized website template spec using AI. Returns a JSON spec with title, what_to_build, how_it_looks, how_it_functions, what_it_connects_to, what_it_says, how_it_operates, and deliver_to. Call this to get a site blueprint before building.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "niche": {
+              "type": "string",
+              "description": "The business niche or industry, e.g. 'dental', 'plumbing', 'real estate'. Defaults to 'business'.",
+              "default": "business"
+            },
+            "style": {
+              "type": "string",
+              "description": "Design style description, e.g. 'modern professional', 'bold and colorful', 'minimalist'. Defaults to 'modern professional'.",
+              "default": "modern professional"
+            }
+          }
+        },
+        "handler": "runTemplateGenerator",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": true
+        }
+      }
+    ]
+  }
+}

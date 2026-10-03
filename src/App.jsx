@@ -21,6 +21,7 @@ import SystemFactory from '@/pages/SystemFactory';
 import BatchOperations from '@/pages/BatchOperations';
 import WebsiteFactory from '@/pages/WebsiteFactory';
 import Analytics from '@/pages/Analytics';
+import OAuthConsent from '@/pages/OAuthConsent';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -48,6 +49,7 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      <Route path="/oauth/consent" element={<OAuthConsent />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
