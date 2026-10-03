@@ -37,10 +37,11 @@ export function workerAuthConfigured(): boolean {
   return Object.values(TRUSTED_WORKER_KEYS).some(v => !!v?.spki_base64);
 }
 
-export async function verifySignedWorkerRequest(
+export async function verifySignedWorkerRequestWithKeys(
   req: Request,
   rawBody: string,
   expectedAgent = '',
+  trustedKeys: Record<string, TrustedWorkerKey> = TRUSTED_WORKER_KEYS,
 ) {
   try {
     const version = req.headers.get('x-sma-auth-version') || '';
@@ -72,7 +73,7 @@ export async function verifySignedWorkerRequest(
       return { ok: false, reason: 'agent_required', method: 'ecdsa-p256', key_id: keyId };
     }
 
-    const trusted = TRUSTED_WORKER_KEYS[keyId];
+    const trusted = trustedKeys[keyId];
     if (!trusted?.spki_base64) {
       return { ok: false, reason: 'untrusted_key', method: 'ecdsa-p256', key_id: keyId };
     }
@@ -113,4 +114,13 @@ export async function verifySignedWorkerRequest(
   } catch {
     return { ok: false, reason: 'verification_error', method: 'ecdsa-p256', key_id: null };
   }
+}
+
+
+export async function verifySignedWorkerRequest(
+  req: Request,
+  rawBody: string,
+  expectedAgent = '',
+) {
+  return verifySignedWorkerRequestWithKeys(req, rawBody, expectedAgent, TRUSTED_WORKER_KEYS);
 }
