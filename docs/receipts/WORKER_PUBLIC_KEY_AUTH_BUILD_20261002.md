@@ -65,3 +65,29 @@ No AgentTask was executed or modified.
 ## Next protected action
 
 Provision one orchestrator keypair, place the private key only in the orchestrator Railway sandbox, commit only the public key, deploy the verifier, and run auth-probe mode only.
+
+
+## Exact-SHA GitHub Actions validation
+
+Validated branch head:
+- `80b64a1c60c66915f88672acb94e7a00ae661c39`
+
+Workflow:
+- Name: `Worker Auth CI`
+- Run ID: `37080662489`
+- Job ID: `111080227803`
+- Conclusion: **SUCCESS**
+
+Passed steps:
+- checkout
+- Node 22 setup
+- worker syntax check
+- key generator syntax check
+- protocol tests
+- key generator safety test
+
+Independent in-house validator routes:
+- Vision Cortex validator: BLOCKED by connected-app monthly integration limit.
+- Xtreme Fault Line QA: BLOCKED by connected-app monthly integration limit.
+
+These blocked validator routes are not treated as PASS. GitHub Actions provides the current independent machine-validation evidence for the exact branch SHA.
