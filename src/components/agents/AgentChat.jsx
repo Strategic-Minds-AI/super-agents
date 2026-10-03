@@ -57,29 +57,29 @@ export default function AgentChat({ agentName, agentLabel, onBack }) {
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
-      <div className="flex items-center gap-3 px-4 h-14 border-b border-[#E5E7EB] bg-white">
-        <button onClick={onBack} className="p-2 rounded-full hover:bg-[#FAFAFA]"><ArrowLeft className="w-5 h-5" /></button>
-        <div className="font-heading font-bold text-black">{agentLabel}</div>
+      <div className="flex items-center gap-3 px-4 h-14 border-b border-[#2a2a2a] bg-[#212121]">
+        <button onClick={onBack} className="p-2 rounded-full hover:bg-[#171717]"><ArrowLeft className="w-5 h-5" /></button>
+        <div className="font-heading font-bold text-white">{agentLabel}</div>
         <span className="xa-pill-badge">LIVE</span>
       </div>
-      <div ref={scrollRef} className="xa-scroll flex-1 overflow-y-auto px-4 py-6 space-y-5 bg-white">
+      <div ref={scrollRef} className="xa-scroll flex-1 overflow-y-auto px-4 py-6 space-y-5 bg-[#212121]">
         {loading ? (
-          <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 animate-spin text-[#CCBB00]" /></div>
+          <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 animate-spin text-[#5B7FA8]" /></div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center h-full px-6 text-center">
             <AlertCircle className="w-10 h-10 text-red-400 mb-3" />
-            <p className="text-sm font-semibold text-black/70 mb-1">Agent unavailable</p>
-            <p className="text-xs text-black/50 mb-4 max-w-xs">{error}</p>
+            <p className="text-sm font-semibold text-white/70 mb-1">Agent unavailable</p>
+            <p className="text-xs text-white/50 mb-4 max-w-xs">{error}</p>
             <button onClick={() => initConversation()} className="xa-btn-outline text-sm">
               <RefreshCw className="w-4 h-4" /> Retry connection
             </button>
           </div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-black/40 mt-20">Send a message to activate this super-agent.</div>
+          <div className="text-center text-white/40 mt-20">Send a message to activate this super-agent.</div>
         ) : messages.map((m, i) => <MessageBubble key={i} message={m} />)}
-        {sending && <div className="flex items-center gap-2 text-black/40 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Thinking…</div>}
+        {sending && <div className="flex items-center gap-2 text-white/40 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Thinking…</div>}
       </div>
-      <div className="border-t border-[#E5E7EB] bg-white p-4">
+      <div className="border-t border-[#2a2a2a] bg-[#212121] p-4">
         <div className="flex items-end gap-2 max-w-3xl mx-auto">
           <textarea
             value={input}

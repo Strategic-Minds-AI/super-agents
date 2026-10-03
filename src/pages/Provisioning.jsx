@@ -48,7 +48,7 @@ export default function Provisioning() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
       <div className="flex items-center gap-3 mb-2">
-        <Server className="w-7 h-7 text-[#FFEA00]" />
+        <Server className="w-7 h-7 text-[#8BA5C0]" />
         <h1 className="font-heading font-bold text-2xl">Infrastructure Provisioning</h1>
       </div>
       <p className="text-muted-foreground mb-8">Provision your system across GitHub, Supabase, Vercel, Railway, and local Docker — one command, full stack.</p>
@@ -87,11 +87,11 @@ export default function Provisioning() {
                 onClick={() => toggle(key)}
                 className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
                   targets[key]
-                    ? "border-[#FFEA00]/50 bg-[#FFEA00]/5"
+                    ? "border-[#8BA5C0]/50 bg-[#8BA5C0]/5"
                     : "border-border bg-background hover:border-muted-foreground/30"
                 }`}
               >
-                <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${targets[key] ? "text-[#FFEA00]" : "text-muted-foreground"}`} />
+                <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${targets[key] ? "text-[#8BA5C0]" : "text-muted-foreground"}`} />
                 <div className="min-w-0">
                   <div className="text-sm font-semibold">{label}</div>
                   <div className="text-xs text-muted-foreground">{desc}</div>
@@ -103,7 +103,7 @@ export default function Provisioning() {
         <button
           onClick={provision}
           disabled={loading || !Object.values(targets).some(Boolean)}
-          className="w-full h-11 rounded-lg bg-gradient-to-r from-[#FFF7B3] via-[#FFEA00] to-[#CCBB00] text-black font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 hover:brightness-105 transition-all"
+          className="w-full h-11 rounded-lg bg-gradient-to-r from-[#1a1a1a] via-[#8BA5C0] to-[#5B7FA8] text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 hover:brightness-105 transition-all"
         >
           {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Provisioning...</> : "🚀 Provision Infrastructure"}
         </button>
@@ -131,15 +131,15 @@ export default function Provisioning() {
                 <div className="flex items-center gap-2 mb-1">
                   {r.status === "provisioned" && <CheckCircle2 className="w-4 h-4 text-green-500" />}
                   {r.status === "failed" && <XCircle className="w-4 h-4 text-red-500" />}
-                  {r.status === "pending" && <Loader2 className="w-4 h-4 text-yellow-500" />}
+                  {r.status === "pending" && <Loader2 className="w-4 h-4 text-[#B8C5D6]" />}
                   <span className="text-sm font-semibold capitalize">{r.target}</span>
-                  <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${r.status === "provisioned" ? "bg-green-500/10 text-green-500" : r.status === "failed" ? "bg-red-500/10 text-red-500" : "bg-yellow-500/10 text-yellow-500"}`}>
+                  <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${r.status === "provisioned" ? "bg-green-500/10 text-green-500" : r.status === "failed" ? "bg-red-500/10 text-red-500" : "bg-[#B8C5D6]/10 text-[#B8C5D6]"}`}>
                     {r.status}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{r.detail}</p>
                 {r.url && (
-                  <a href={r.url} target="_blank" rel="noreferrer" className="text-xs text-[#FFEA00] hover:underline mt-1 block truncate">
+                  <a href={r.url} target="_blank" rel="noreferrer" className="text-xs text-[#8BA5C0] hover:underline mt-1 block truncate">
                     {r.url}
                   </a>
                 )}
@@ -153,7 +153,7 @@ export default function Provisioning() {
               {Object.entries(result.docker_files).map(([fname, content]) => (
                 <div key={fname} className="rounded-lg border border-border bg-[#0d0d0d] overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-muted/30">
-                    <span className="text-sm font-mono font-semibold text-[#FFEA00]">{fname}</span>
+                    <span className="text-sm font-mono font-semibold text-[#8BA5C0]">{fname}</span>
                     <button
                       onClick={() => copy(fname, content)}
                       className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"

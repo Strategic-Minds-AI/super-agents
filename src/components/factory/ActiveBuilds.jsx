@@ -3,12 +3,12 @@ import { base44 } from "@/api/base44Client";
 import { Loader2, RefreshCw, ExternalLink, Package } from "lucide-react";
 
 const STATUS_META = {
-  spec_submitted: { color: "#8A7300", bg: "#FFF7B3", label: "Submitted" },
-  planning: { color: "#2563EB", bg: "#DBEAFE", label: "Planning" },
-  building: { color: "#2563EB", bg: "#DBEAFE", label: "Building" },
-  deploying: { color: "#7C3AED", bg: "#EDE9FE", label: "Deploying" },
-  delivered: { color: "#16A34A", bg: "#DCFCE7", label: "Delivered" },
-  failed: { color: "#DC2626", bg: "#FEE2E2", label: "Failed" }
+  spec_submitted: { color: "#B8C5D6", bg: "#1a1a1a", label: "Submitted" },
+  planning: { color: "#2563EB", bg: "#0d1a2a", label: "Planning" },
+  building: { color: "#2563EB", bg: "#0d1a2a", label: "Building" },
+  deploying: { color: "#7C3AED", bg: "#1a0d2a", label: "Deploying" },
+  delivered: { color: "#16A34A", bg: "#0d1f0d", label: "Delivered" },
+  failed: { color: "#DC2626", bg: "#2a0d0d", label: "Failed" }
 };
 
 export default function ActiveBuilds({ refreshKey }) {
@@ -31,33 +31,33 @@ export default function ActiveBuilds({ refreshKey }) {
     <section className="xa-card p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-[#FFF7B3] flex items-center justify-center"><Package className="w-5 h-5 text-[#8A7300]" /></div>
+          <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center"><Package className="w-5 h-5 text-[#B8C5D6]" /></div>
           <div>
-            <h2 className="font-heading font-bold text-lg text-black">Active Builds</h2>
-            <p className="text-xs text-black/50">Systems being built and delivered by the autonomous worker</p>
+            <h2 className="font-heading font-bold text-lg text-white">Active Builds</h2>
+            <p className="text-xs text-white/50">Systems being built and delivered by the autonomous worker</p>
           </div>
         </div>
-        <button onClick={load} className="text-black/50 hover:text-black"><RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /></button>
+        <button onClick={load} className="text-white/50 hover:text-white"><RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /></button>
       </div>
 
-      {loading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-[#CCBB00]" /></div> : builds.length === 0 ? (
-        <div className="text-center py-8"><Package className="w-8 h-8 mx-auto text-black/20" /><p className="text-sm text-black/50 mt-2">No builds yet. Submit a system spec above to start.</p></div>
+      {loading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-[#5B7FA8]" /></div> : builds.length === 0 ? (
+        <div className="text-center py-8"><Package className="w-8 h-8 mx-auto text-white/20" /><p className="text-sm text-white/50 mt-2">No builds yet. Submit a system spec above to start.</p></div>
       ) : (
         <div className="space-y-2">
           {builds.map(b => {
             const meta = STATUS_META[b.status] || STATUS_META.spec_submitted;
             return (
-              <div key={b.id} className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E7EB]">
+              <div key={b.id} className="p-3 rounded-xl bg-[#171717] border border-[#2a2a2a]">
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="font-bold text-black text-sm truncate">{b.title}</div>
-                    <div className="text-xs text-black/45 capitalize">{b.build_type?.replace("_", " ")}</div>
+                    <div className="font-bold text-white text-sm truncate">{b.title}</div>
+                    <div className="text-xs text-white/45 capitalize">{b.build_type?.replace("_", " ")}</div>
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0" style={{ background: meta.bg, color: meta.color }}>{meta.label}</span>
                 </div>
-                {b.what_to_build && <p className="text-xs text-black/55 mt-1.5 line-clamp-2">{b.what_to_build}</p>}
+                {b.what_to_build && <p className="text-xs text-white/55 mt-1.5 line-clamp-2">{b.what_to_build}</p>}
                 {b.result && (
-                  <a href={b.result} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-[#CCBB00] mt-2 hover:underline">
+                  <a href={b.result} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-[#5B7FA8] mt-2 hover:underline">
                     <ExternalLink className="w-3 h-3" /> {b.result}
                   </a>
                 )}

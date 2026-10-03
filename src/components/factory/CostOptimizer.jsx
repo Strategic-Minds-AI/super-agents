@@ -25,12 +25,12 @@ export default function CostOptimizer({ freeMode, setFreeMode }) {
     <section className="xa-card p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-[#FFF7B3] flex items-center justify-center">
-            <DollarSign className="w-5 h-5 text-[#8A7300]" />
+          <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-[#B8C5D6]" />
           </div>
           <div>
-            <h2 className="font-heading font-bold text-lg text-black">Free Tier Strategy</h2>
-            <p className="text-xs text-black/50">Maximize free, minimize paid</p>
+            <h2 className="font-heading font-bold text-lg text-white">Free Tier Strategy</h2>
+            <p className="text-xs text-white/50">Maximize free, minimize paid</p>
           </div>
         </div>
         <button
@@ -43,11 +43,11 @@ export default function CostOptimizer({ freeMode, setFreeMode }) {
 
       <div className="grid grid-cols-2 gap-1.5 mb-3">
         {FREE_SERVICES.map(s => (
-          <div key={s.name} className="flex items-center gap-1.5 p-2 rounded-lg bg-green-50 border border-green-100">
-            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
+          <div key={s.name} className="flex items-center gap-1.5 p-2 rounded-lg bg-[#0d1f0d] border border-green-800">
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />
             <div className="min-w-0">
-              <div className="text-[11px] font-bold text-black truncate">{s.name}</div>
-              <div className="text-[9px] text-black/40 truncate">{s.limit}</div>
+              <div className="text-[11px] font-bold text-white truncate">{s.name}</div>
+              <div className="text-[9px] text-white/40 truncate">{s.limit}</div>
             </div>
           </div>
         ))}
@@ -57,14 +57,14 @@ export default function CostOptimizer({ freeMode, setFreeMode }) {
         {PAID_SERVICES.map(s => {
           const isOff = freeMode && s.skippable;
           return (
-            <div key={s.name} className={`flex items-center gap-2 p-2 rounded-lg border transition-all ${isOff ? "bg-gray-50 border-gray-100 opacity-50" : "bg-orange-50 border-orange-100"}`}>
-              <div className={`w-2 h-2 rounded-full ${isOff ? "bg-gray-300" : "bg-orange-400"}`} />
+            <div key={s.name} className={`flex items-center gap-2 p-2 rounded-lg border transition-all ${isOff ? "bg-[#1a1a1a] border-[#2a2a2a] opacity-50" : "bg-[#2a2a1a] border-[#3a3a2a]"}`}>
+              <div className={`w-2 h-2 rounded-full ${isOff ? "bg-[#3a3a3a]" : "bg-orange-400"}`} />
               <div className="min-w-0 flex-1">
-                <div className="text-[11px] font-bold text-black truncate">{s.name}</div>
-                <div className="text-[9px] text-black/40 truncate">{s.note}</div>
+                <div className="text-[11px] font-bold text-white truncate">{s.name}</div>
+                <div className="text-[9px] text-white/40 truncate">{s.note}</div>
               </div>
-              <span className="text-[10px] font-bold text-black/60 shrink-0">{s.cost}</span>
-              {isOff && <span className="text-[9px] font-bold text-gray-400 shrink-0">OFF</span>}
+              <span className="text-[10px] font-bold text-white/60 shrink-0">{s.cost}</span>
+              {isOff && <span className="text-[9px] font-bold text-[#7f7f7f] shrink-0">OFF</span>}
             </div>
           );
         })}

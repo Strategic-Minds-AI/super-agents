@@ -4,10 +4,10 @@ import { base44 } from "@/api/base44Client";
 import { Loader2, RefreshCw, Activity, Globe, Hammer, Layers, Zap, Link2, Rocket, Clock, CheckCircle2, AlertTriangle, TrendingUp, Wifi } from "lucide-react";
 
 const STATUS_COLORS = {
-  pending: "#8A7300", in_progress: "#2563EB", completed: "#16A34A", failed: "#DC2626",
-  available: "#16A34A", bought: "#7C3AED", unavailable: "#DC2626", discovered: "#8A7300",
-  delivered: "#16A34A", building: "#2563EB", spec_submitted: "#8A7300", planning: "#2563EB",
-  running: "#2563EB", complete: "#16A34A", queued: "#8A7300"
+  pending: "#B8C5D6", in_progress: "#2563EB", completed: "#16A34A", failed: "#DC2626",
+  available: "#16A34A", bought: "#7C3AED", unavailable: "#DC2626", discovered: "#B8C5D6",
+  delivered: "#16A34A", building: "#2563EB", spec_submitted: "#B8C5D6", planning: "#2563EB",
+  running: "#2563EB", complete: "#16A34A", queued: "#B8C5D6"
 };
 
 export default function Analytics() {
@@ -101,12 +101,12 @@ export default function Analytics() {
   const total = (m) => Object.values(m || {}).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      <header className="border-b border-[#E5E7EB] bg-white sticky top-0 z-10">
+    <div className="min-h-screen bg-[#171717]">
+      <header className="border-b border-[#2a2a2a] bg-[#212121] sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="xa-pill-badge">24/7 ANALYTICS</span>
-            <h1 className="font-heading font-black text-xl sm:text-2xl text-black mt-1 truncate">Live Operations Dashboard</h1>
+            <h1 className="font-heading font-black text-xl sm:text-2xl text-white mt-1 truncate">Live Operations Dashboard</h1>
           </div>
           <div className="flex gap-2 shrink-0">
             <button onClick={() => navigate("/website-factory")} className="xa-btn-outline text-xs px-3 py-2">🏭 Factory</button>
@@ -124,43 +124,43 @@ export default function Analytics() {
               <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
             </div>
             <div>
-              <div className="text-xs font-bold text-black">24/7 Real-time Sync</div>
-              <div className="text-[10px] text-black/50">Auto-refreshes every 30s · {lastSync ? new Date(lastSync).toLocaleTimeString() : 'never'}</div>
+              <div className="text-xs font-bold text-white">24/7 Real-time Sync</div>
+              <div className="text-[10px] text-white/50">Auto-refreshes every 30s · {lastSync ? new Date(lastSync).toLocaleTimeString() : 'never'}</div>
             </div>
           </div>
-          <button onClick={load} disabled={loading} className="text-black/50 hover:text-black">
+          <button onClick={load} disabled={loading} className="text-white/50 hover:text-white">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
 
         {/* KPI Cards */}
         {loading && !stats ? (
-          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-[#CCBB00]" /></div>
+          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-[#5B7FA8]" /></div>
         ) : stats ? (
           <div className="grid grid-cols-2 gap-3">
             {/* Tasks */}
             <div className="xa-card p-4">
-              <div className="flex items-center gap-2 mb-2"><Activity className="w-4 h-4 text-[#CCBB00]" /><span className="text-xs font-bold text-black/50 uppercase">Tasks</span></div>
-              <div className="font-heading font-black text-2xl text-black">{total(stats.tasks)}</div>
+              <div className="flex items-center gap-2 mb-2"><Activity className="w-4 h-4 text-[#5B7FA8]" /><span className="text-xs font-bold text-white/50 uppercase">Tasks</span></div>
+              <div className="font-heading font-black text-2xl text-white">{total(stats.tasks)}</div>
               <div className="flex gap-2 mt-1.5 text-[10px]">
-                <span className="text-[#8A7300] font-bold">{stats.tasks.pending || 0} pending</span>
+                <span className="text-[#B8C5D6] font-bold">{stats.tasks.pending || 0} pending</span>
                 <span className="text-green-600 font-bold">{stats.tasks.completed || 0} done</span>
                 <span className="text-red-500 font-bold">{stats.tasks.failed || 0} fail</span>
               </div>
             </div>
             {/* Domains */}
             <div className="xa-card p-4">
-              <div className="flex items-center gap-2 mb-2"><Globe className="w-4 h-4 text-[#CCBB00]" /><span className="text-xs font-bold text-black/50 uppercase">Domains</span></div>
-              <div className="font-heading font-black text-2xl text-black">{total(stats.domains)}</div>
+              <div className="flex items-center gap-2 mb-2"><Globe className="w-4 h-4 text-[#5B7FA8]" /><span className="text-xs font-bold text-white/50 uppercase">Domains</span></div>
+              <div className="font-heading font-black text-2xl text-white">{total(stats.domains)}</div>
               <div className="flex gap-2 mt-1.5 text-[10px]">
-                <span className="text-[#8A7300] font-bold">{stats.domains.available || 0} avail</span>
+                <span className="text-[#B8C5D6] font-bold">{stats.domains.available || 0} avail</span>
                 <span className="text-purple-600 font-bold">{stats.domains.bought || 0} bought</span>
               </div>
             </div>
             {/* Builds */}
             <div className="xa-card p-4">
-              <div className="flex items-center gap-2 mb-2"><Hammer className="w-4 h-4 text-[#CCBB00]" /><span className="text-xs font-bold text-black/50 uppercase">Builds</span></div>
-              <div className="font-heading font-black text-2xl text-black">{total(stats.builds)}</div>
+              <div className="flex items-center gap-2 mb-2"><Hammer className="w-4 h-4 text-[#5B7FA8]" /><span className="text-xs font-bold text-white/50 uppercase">Builds</span></div>
+              <div className="font-heading font-black text-2xl text-white">{total(stats.builds)}</div>
               <div className="flex gap-2 mt-1.5 text-[10px]">
                 <span className="text-blue-600 font-bold">{stats.builds.building || 0} building</span>
                 <span className="text-green-600 font-bold">{stats.builds.delivered || 0} delivered</span>
@@ -168,8 +168,8 @@ export default function Analytics() {
             </div>
             {/* Batches */}
             <div className="xa-card p-4">
-              <div className="flex items-center gap-2 mb-2"><Layers className="w-4 h-4 text-[#CCBB00]" /><span className="text-xs font-bold text-black/50 uppercase">Batches</span></div>
-              <div className="font-heading font-black text-2xl text-black">{total(stats.batches)}</div>
+              <div className="flex items-center gap-2 mb-2"><Layers className="w-4 h-4 text-[#5B7FA8]" /><span className="text-xs font-bold text-white/50 uppercase">Batches</span></div>
+              <div className="font-heading font-black text-2xl text-white">{total(stats.batches)}</div>
               <div className="flex gap-2 mt-1.5 text-[10px]">
                 <span className="text-blue-600 font-bold">{stats.batches.running || 0} running</span>
                 <span className="text-green-600 font-bold">{stats.batches.complete || 0} done</span>
@@ -180,7 +180,7 @@ export default function Analytics() {
 
         {/* Batch Actions */}
         <div className="xa-card p-5">
-          <h2 className="font-heading font-bold text-lg text-black mb-3">Batch Operations</h2>
+          <h2 className="font-heading font-bold text-lg text-white mb-3">Batch Operations</h2>
           <div className="grid grid-cols-1 gap-2">
             <button onClick={batchSync} disabled={syncing} className="xa-btn-primary w-full">
               {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />} Batch Sync — run agent loop (10 cycles)
@@ -193,7 +193,7 @@ export default function Analytics() {
             </button>
           </div>
           {syncResult && (
-            <div className="mt-3 p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E7EB] text-xs">
+            <div className="mt-3 p-3 rounded-xl bg-[#171717] border border-[#2a2a2a] text-xs">
               {syncResult.error ? (
                 <span className="text-red-600">Error: {syncResult.error}</span>
               ) : syncResult.connected != null ? (
@@ -209,22 +209,22 @@ export default function Analytics() {
 
         {/* Recent Activity */}
         <div>
-          <h2 className="font-heading font-bold text-lg text-black mb-3">Recent Activity</h2>
+          <h2 className="font-heading font-bold text-lg text-white mb-3">Recent Activity</h2>
           {activity.length === 0 ? (
             <div className="xa-card p-8 text-center">
-              <Clock className="w-6 h-6 mx-auto text-black/20" />
-              <p className="text-black/50 mt-2 text-xs">No activity yet. Run a batch or the agent loop to see live data.</p>
+              <Clock className="w-6 h-6 mx-auto text-white/20" />
+              <p className="text-white/50 mt-2 text-xs">No activity yet. Run a batch or the agent loop to see live data.</p>
             </div>
           ) : (
             <div className="space-y-1.5">
               {activity.map((t) => {
-                const color = STATUS_COLORS[t.status] || "#8A7300";
+                const color = STATUS_COLORS[t.status] || "#B8C5D6";
                 return (
                   <div key={t.id} className="xa-card p-3 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-bold text-black truncate">{t.title}</div>
-                      <div className="text-[10px] text-black/40 truncate">{t.agent_name} · {t.task_type || 'generic'} {t.domain ? `· ${t.domain}` : ''}</div>
+                      <div className="text-xs font-bold text-white truncate">{t.title}</div>
+                      <div className="text-[10px] text-white/40 truncate">{t.agent_name} · {t.task_type || 'generic'} {t.domain ? `· ${t.domain}` : ''}</div>
                     </div>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: `${color}20`, color }}>{t.status}</span>
                   </div>
