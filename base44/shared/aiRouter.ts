@@ -166,8 +166,13 @@ export async function callVercelGateway(opts: {
   return { content, model: cfg.model, provider: 'vercel_ai_gateway' };
 }
 
-// ── INTELLIGENT CALL — routes to Vercel if key exists, falls back to Base44 ──
+// ── INTELLIGENT CALL — operates off the AI Gateway API key ──
 // This is the main entry point for all AI calls in the system.
+// When a gateway key is present (AI_GATEWAY_API_KEY / VERCEL_AI_GATEWAY_KEY),
+// the system runs EXCLUSIVELY on the gateway — no Base44 credit fallback.
+// If the gateway call fails, the error propagates so the caller (agent loop,
+// resilience layer) can handle it. Base44 InvokeLLM is only used as a dev
+// fallback when NO gateway key is configured at all.
 // Uses AI_GATEWAY_API_KEY (the standard Vercel env var) with fallback to
 // VERCEL_AI_GATEWAY_KEY for backward compatibility.
 export async function callAI(base44, opts: {
@@ -181,29 +186,25 @@ export async function callAI(base44, opts: {
 }): Promise<{ result: any; provider: string; model: string; routedTask: string }> {
   const cfg = getModelForTask(opts.taskType);
 
-  // ── Path 1: Vercel AI Gateway (your key, no Base44 credits) ──
+  // ── Primary path: Vercel AI Gateway (your key, no Base44 credits) ──
   if (opts.vercelKey) {
-    try {
-      const { content, model, provider } = await callVercelGateway({
-        apiKey: opts.vercelKey,
-        taskType: opts.taskType,
-        systemPrompt: opts.systemPrompt,
-        userPrompt: opts.userPrompt + (opts.jsonSchema ? '\n\nReturn ONLY valid JSON matching this schema. No markdown, no explanation.' : ''),
-        jsonMode: !!opts.jsonSchema,
-        timeoutMs: opts.timeoutMs,
-      });
+    const { content, model, provider } = await callVercelGateway({
+      apiKey: opts.vercelKey,
+      taskType: opts.taskType,
+      systemPrompt: opts.systemPrompt,
+      userPrompt: opts.userPrompt + (opts.jsonSchema ? '\n\nReturn ONLY valid JSON matching this schema. No markdown, no explanation.' : ''),
+      jsonMode: !!opts.jsonSchema,
+      timeoutMs: opts.timeoutMs,
+    });
 
-      let parsed = content;
-      if (opts.jsonSchema) {
-        try { parsed = JSON.parse(content); } catch { parsed = content; }
-      }
-      return { result: parsed, provider, model, routedTask: opts.taskType };
-    } catch (e) {
-      // Fall through to Base44 InvokeLLM
+    let parsed: any = content;
+    if (opts.jsonSchema) {
+      try { parsed = JSON.parse(content); } catch { parsed = content; }
     }
+    return { result: parsed, provider, model, routedTask: opts.taskType };
   }
 
-  // ── Path 2: Base44 InvokeLLM (uses integration credits) ──
+  // ── Dev fallback: Base44 InvokeLLM (only when no gateway key is set) ──
   const llmOpts: any = {
     prompt: `${opts.systemPrompt}\n\n${opts.userPrompt}`,
   };
@@ -214,7 +215,7 @@ export async function callAI(base44, opts: {
   }
 
   const result = await base44.asServiceRole.integrations.Core.InvokeLLM(llmOpts);
-  let parsed = result;
+  let parsed: any = result;
   if (opts.jsonSchema && typeof result === 'string') {
     try { parsed = JSON.parse(result); } catch { parsed = result; }
   }

@@ -3,6 +3,7 @@ import { secrets } from 'base44:runtime';
 import { ToolLoopAgent, tool, stepCountIs, hasToolCall } from 'npm:ai@7.0.16';
 import { createOpenAICompatible } from 'npm:@ai-sdk/openai-compatible@3.0.5';
 import { z } from 'npm:zod@4.4.3';
+import { callAI } from '../../shared/aiRouter.ts';
 
 // META ARCHITECT — a real code agent.
 // This is an LLM running a genuine tool loop (same architecture that powers a builder agent),
@@ -23,23 +24,19 @@ export default async function(req) {
     const trace = [];
     const log = (stage, detail) => trace.push({ stage, ...detail, at: new Date().toISOString() });
 
-    // Connect to Vercel AI Gateway using the team API key (no Base44 credits).
-    // Falls back to the Base44 platform AI gateway if no key is set.
+    // Operates exclusively off the AI Gateway API key (no Base44 credits).
     const aiKey = secrets.get('AI_GATEWAY_API_KEY') || secrets.get('VERCEL_AI_GATEWAY_KEY');
-    let models;
-    if (aiKey) {
-      models = createOpenAICompatible({
-        name: 'vercel-ai-gateway',
-        baseURL: 'https://ai-gateway.vercel.sh/v1',
-        apiKey: aiKey,
-      });
-    } else {
-      const { baseURL, token, headers } = base44.asServiceRole.aiGateway.connection();
-      models = createOpenAICompatible({ name: 'base44', baseURL, apiKey: token, headers });
+    if (!aiKey) {
+      return Response.json({ error: 'AI_GATEWAY_API_KEY or VERCEL_AI_GATEWAY_KEY secret is required — the system operates off the AI Gateway key.' }, { status: 500 });
     }
+    const models = createOpenAICompatible({
+      name: 'vercel-ai-gateway',
+      baseURL: 'https://ai-gateway.vercel.sh/v1',
+      apiKey: aiKey,
+    });
 
     // TOOLS — real, scoped to this app's data. The agent decides which to call and in what order.
-    const modelId = aiKey ? 'anthropic/claude-sonnet-4' : 'automatic';
+    const modelId = 'anthropic/claude-sonnet-4';
     const agent = new ToolLoopAgent({
       model: models(modelId),
       instructions: `You are the Meta Architect, Xtreme AI's apex autonomous agent. You operate a real tool loop: inspect state, decide, act, verify. You are not a chatbot — every response should be backed by tool calls that do real work.
@@ -105,11 +102,14 @@ Rules:
           inputSchema: z.object({ query: z.string() }),
           execute: async ({ query }) => {
             log('webSearch', { query });
-            const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
-              prompt: `Search the web and return a concise factual summary for: ${query}. Include any URLs you find.`,
-              add_context_from_internet: true
+            // Routes through the AI Gateway key (no Base44 credits).
+            const { result } = await callAI(base44, {
+              vercelKey: aiKey,
+              taskType: 'web_search',
+              systemPrompt: 'You are a research assistant. Return a concise factual summary for the query. Include any relevant URLs you know.',
+              userPrompt: query,
             });
-            return { summary: typeof res === 'string' ? res : JSON.stringify(res).slice(0, 2000) };
+            return { summary: typeof result === 'string' ? result : JSON.stringify(result).slice(0, 2000) };
           }
         }),
 
