@@ -14,7 +14,7 @@ export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const rawBody = await req.text();
-    let body = {};
+    let body: any = {};
     try {
       body = rawBody ? JSON.parse(rawBody) : {};
     } catch {
@@ -24,6 +24,11 @@ export default async function(req) {
     const agentName = typeof body?.agent_name === 'string' ? body.agent_name.trim() : '';
     const workerAuth = await verifySignedWorkerRequest(req, rawBody, agentName);
     const isWorker = workerAuth.ok;
+    const workerAuthAttempted = !!(
+      req.headers.get('x-sma-auth-version') ||
+      req.headers.get('x-sma-key-id') ||
+      req.headers.get('x-sma-signature')
+    );
 
     // Side-effect-free auth probe. This returns before any AgentTask query.
     if (body?.auth_probe === true) {
@@ -34,6 +39,13 @@ export default async function(req) {
         key_id: workerAuth.key_id,
         reason: workerAuth.reason,
       }, { status: isWorker ? 200 : 401 });
+    }
+
+    if (workerAuthAttempted && !isWorker) {
+      return Response.json({
+        error: 'Worker authentication failed',
+        reason: workerAuth.reason,
+      }, { status: 401 });
     }
 
     if (!isWorker) {
