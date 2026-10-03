@@ -13,6 +13,7 @@
               "type": "string",
               "enum": [
                 "status",
+                "chat",
                 "run_loop",
                 "heartbeat",
                 "generate_template",
