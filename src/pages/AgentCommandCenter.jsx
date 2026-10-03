@@ -56,9 +56,9 @@ export default function AgentCommandCenter() {
     <div className="min-h-screen bg-white">
       <section className="border-b border-[#E5E7EB] bg-gradient-to-b from-[#FFF7B3]/30 to-white">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <span className="xa-pill-badge">XTREME AI · OPERATIONS</span>
+          <span className="xa-pill-badge">XTREME SUPER AGENTS</span>
           <h1 className="font-heading font-black text-4xl md:text-5xl text-black mt-4 leading-tight">Autonomous Agent Command Center</h1>
-          <p className="text-lg text-black/60 mt-4 max-w-2xl">A fleet of super-agents engineered like GPT — one for every stage of your business flow. Launch any agent, give it a goal, and it operates end to end.</p>
+          <p className="text-lg text-black/60 mt-4 max-w-2xl">A fleet of super-agents engineered like GPT — one for every stage of your business flow. Launch any agent, give it a goal, and it operates end to end on your Vercel AI Gateway.</p>
           <div className="flex flex-wrap gap-3 mt-8">
             <button onClick={() => navigate("/architect")} className="xa-btn-primary">✦ Launch Meta Architect</button>
             <button onClick={() => navigate("/factory")} className="xa-btn-primary">🏗️ System Factory</button>

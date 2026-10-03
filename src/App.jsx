@@ -22,6 +22,8 @@ import BatchOperations from '@/pages/BatchOperations';
 import WebsiteFactory from '@/pages/WebsiteFactory';
 import Analytics from '@/pages/Analytics';
 import OAuthConsent from '@/pages/OAuthConsent';
+import Provisioning from '@/pages/Provisioning';
+import AppLayout from '@/components/AppLayout';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -55,16 +57,19 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/" element={<AgentCommandCenter />} />
-        <Route path="/agents/:agentName" element={<AgentChatPage />} />
-        <Route path="/domains" element={<DomainRegistry />} />
-        <Route path="/mission" element={<AutonomousMission />} />
-        <Route path="/architect" element={<MetaArchitect />} />
-        <Route path="/mission-control" element={<MissionControl />} />
-        <Route path="/factory" element={<SystemFactory />} />
-        <Route path="/batch" element={<BatchOperations />} />
-        <Route path="/website-factory" element={<WebsiteFactory />} />
-        <Route path="/analytics" element={<Analytics />} />
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<AgentCommandCenter />} />
+          <Route path="/agents/:agentName" element={<AgentChatPage />} />
+          <Route path="/domains" element={<DomainRegistry />} />
+          <Route path="/mission" element={<AutonomousMission />} />
+          <Route path="/architect" element={<MetaArchitect />} />
+          <Route path="/mission-control" element={<MissionControl />} />
+          <Route path="/factory" element={<SystemFactory />} />
+          <Route path="/batch" element={<BatchOperations />} />
+          <Route path="/website-factory" element={<WebsiteFactory />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/provisioning" element={<Provisioning />} />
+        </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

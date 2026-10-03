@@ -48,6 +48,15 @@
     --brand-gold-bright: #FFEE33;
     --brand-gold-deep: #CCBB00;
     --brand-card-subtle: #FAFAFA;
+
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 55 100% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 55 100% 50%;
     --brand-font-heading: 'Inter', sans-serif;
     --brand-font-body: 'Inter', sans-serif;
     --brand-font-weight-regular: 400;
@@ -69,6 +78,47 @@
     --brand-shadow-md: 0 4px 6px rgba(0,0,0,0.05);
     --brand-shadow-lg: 0 10px 15px rgba(0,0,0,0.05);
     --brand-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+
+  /* ── DARK MODE (primary) ── */
+  .dark {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 93%;
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 93%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 93%;
+    --primary: 55 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 93%;
+    --accent: 55 100% 50%;
+    --accent-foreground: 0 0% 0%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 55 100% 50%;
+
+    --brand-background: #0D0D0D;
+    --brand-surface: #171717;
+    --brand-text: #ECECEC;
+    --brand-muted: #1A1A1A;
+    --brand-muted-foreground: #9B9B9B;
+    --brand-border: #2F2F2F;
+    --brand-destructive: #FF4444;
+    --brand-card-subtle: #1A1A1A;
+
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 55 100% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 93%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 55 100% 50%;
   }
 
   h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
