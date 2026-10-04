@@ -1,0 +1,9 @@
+import React,{useEffect,useState} from 'react';
+import StudioField from '@/components/studio/StudioField';
+import {documentMetadata} from '@/components/studio/studioDocument';
+export default function StudioSeoPanel({canvas}) {
+ const [value,setValue]=useState(()=>documentMetadata(canvas.html()));
+ useEffect(()=>setValue(documentMetadata(canvas.html())),[canvas.revision]);
+ const change=(field,next)=>{const values={...value,[field]:next};setValue(values);canvas.meta(values);};
+ return <div className="space-y-5"><div><h2 className="font-heading text-sm font-bold">Search & Sitemap</h2><p className="text-xs text-muted-foreground mt-1">These changes are part of your draft and go live when you publish.</p></div><StudioField label="Search title" value={value.meta_title} maxLength={200} onChange={v=>change('meta_title',v)}/><p className="text-xs text-muted-foreground">{value.meta_title.length} characters; aim for 50–60.</p><StudioField label="Search description" value={value.meta_description} multiline maxLength={500} onChange={v=>change('meta_description',v)}/><p className="text-xs text-muted-foreground">{value.meta_description.length} characters; aim for 150–160.</p><StudioField label="Canonical / sitemap page URL" type="url" value={value.canonical_url} onChange={v=>change('canonical_url',v)} placeholder="https://your-website.com/"/><p className="text-xs text-muted-foreground">This is a single-page website. Its sitemap contains this page URL; when blank, the sitemap uses the published host.</p><label className="flex gap-3 items-start text-sm"><input className="mt-1" type="checkbox" checked={value.indexable} onChange={e=>change('indexable',e.target.checked)}/><span>Allow search engines to index this site</span></label><p className="text-xs text-muted-foreground">Publishing updates the page metadata, robots.txt and sitemap.xml together.</p></div>;
+}

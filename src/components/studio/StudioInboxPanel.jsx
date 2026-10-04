@@ -1,0 +1,9 @@
+import React,{useEffect,useState} from 'react';
+import {base44} from '@/api/base44Client';
+import {Loader2} from 'lucide-react';
+export default function StudioInboxPanel({site}) {
+ const [items,setItems]=useState([]),[total,setTotal]=useState(0),[cursor,setCursor]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const load=async more=>{setBusy(true);setError('');try{const query={build_id:site.id,is_verification:{$ne:true}};const [page,count]=await Promise.all([base44.entities.WebsiteEnquiry.filter(query,{sort:'-created_date',limit:30,cursor:more?cursor:undefined}),base44.entities.WebsiteEnquiry.count(query)]);setItems(v=>more?[...v,...page.items]:page.items);setTotal(count);setCursor(page.has_more?page.next_cursor:null);}catch(e){setError(e.message);}finally{setBusy(false);}};
+ useEffect(()=>{load(false);},[site.id]);
+ return <div className="space-y-4"><p className="text-sm text-muted-foreground">{total} visitor {total===1?'enquiry':'enquiries'}</p>{error&&<p className="studio-alert" role="alert">{error}</p>}{!items.length&&!busy&&!error&&<p className="text-sm">Visitor contact form submissions will appear here.</p>}{items.map(item=><article key={item.id} className="border border-border rounded-lg p-4 space-y-2"><div className="flex justify-between gap-3 flex-wrap"><h3 className="font-bold text-sm">{item.name}</h3><time className="text-xs text-muted-foreground">{new Date(item.created_date).toLocaleString()}</time></div><a className="block text-sm underline break-words" href={`mailto:${item.email}`}>{item.email}</a>{item.phone&&<a className="block text-sm underline" href={`tel:${item.phone}`}>{item.phone}</a>}<p className="text-sm whitespace-pre-wrap break-words">{item.message}</p></article>)}{busy&&<Loader2 className="animate-spin mx-auto" size={20}/>} {cursor&&<button disabled={busy} className="xa-btn-outline w-full" onClick={()=>load(true)}>Load More Enquiries</button>}</div>;
+}

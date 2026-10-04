@@ -110,30 +110,22 @@
     },
     "source_html": {
       "type": "string",
-      "title": "Source HTML",
-      "description": "The prepared HTML source of the deployed site, used by the Studio visual editor."
+      "description": "Legacy source; new drafts use private file references."
     },
     "custom_domain": {
-      "type": "string",
-      "title": "Custom Domain"
+      "type": "string"
     },
     "meta_title": {
-      "type": "string",
-      "title": "Meta Title"
+      "type": "string"
     },
     "meta_description": {
-      "type": "string",
-      "title": "Meta Description"
+      "type": "string"
     },
     "target_keywords": {
-      "type": "string",
-      "title": "Target Keywords",
-      "description": "Comma-separated"
+      "type": "string"
     },
     "competitors": {
-      "type": "string",
-      "title": "Competitors",
-      "description": "Comma-separated competitor domains"
+      "type": "string"
     },
     "seo_status": {
       "type": "string",
@@ -143,8 +135,85 @@
         "audited",
         "issues"
       ],
-      "default": "not_started",
-      "title": "SEO Status"
+      "default": "not_started"
+    },
+    "studio_draft_uri": {
+      "type": "string"
+    },
+    "draft_saved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pending_deployment_id": {
+      "type": "string"
+    },
+    "pending_source_uri": {
+      "type": "string"
+    },
+    "pending_contact_hash": {
+      "type": "string"
+    },
+    "canonical_url": {
+      "type": "string"
+    },
+    "indexable": {
+      "type": "boolean",
+      "default": true
+    },
+    "domain_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "connected",
+        "failed"
+      ]
+    },
+    "seo_report": {
+      "type": "object",
+      "properties": {
+        "checked_at": {
+          "type": "string"
+        },
+        "live_url": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number"
+        },
+        "indexability": {
+          "type": "string"
+        },
+        "sitemap_url": {
+          "type": "string"
+        },
+        "checks": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "passed": {
+                "type": "boolean"
+              },
+              "detail": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "passed",
+              "detail"
+            ]
+          }
+        }
+      }
     }
   },
   "required": [

@@ -1,30 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 import { secrets } from 'base44:runtime';
 import { callAI } from '../../shared/aiRouter.ts';
-import { prepareWebsite, websiteFiles } from '../../shared/websiteAssets.ts';
-import { requireFactoryExecutor, hashContactToken } from '../../shared/factoryAuth.ts';
-import { refreshFactoryBatch } from '../../shared/factoryProgress.ts';
+import { prepareWebsite } from '../../shared/websiteAssets.ts';
+import { requireFactoryExecutor } from '../../shared/factoryAuth.ts';
+import { storeWebsiteSource } from '../../shared/studioWebsite.ts';
+import { publishWebsite } from '../../shared/websiteDeployment.ts';
 
-// WEBSITE BUILDER — generates a complete HTML website via the Vercel AI Gateway,
-// injects a working contact form + serverless handler, deploys to Vercel, and
-// records the build with a hashed contact token so enquiries persist.
-
-function toBase64(str) {
-  const bytes = new TextEncoder().encode(str);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-  return btoa(binary);
-}
-
-function sanitizeProjectName(input) {
-  return (input || 'ai-site').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 52) || 'ai-site';
-}
-
-function randomToken() {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
-}
 
 export default async function(req) {
   try {
@@ -47,9 +28,9 @@ export default async function(req) {
 
     const ownerId = build?.owner_id || user.id || null;
 
-    if (build) {
-      await db.SystemBuild.update(build.id, { status: 'building', build_stage: 'Generating website via AI Gateway', last_error: '' });
-    }
+    if (niche.length > 4000 || style.length > 500 || businessName.length > 150) return Response.json({error:'The website brief is too long.'},{status:400});
+    if (!build) build = await db.SystemBuild.create({title:businessName || `${niche.slice(0,120)} website`,build_type:'website',what_to_build:niche,owner_id:ownerId,batch_id:batchId || undefined,status:'building'});
+    await db.SystemBuild.update(build.id, { status: 'building', build_stage: 'Generating website via AI Gateway', last_error: '' });
 
     // ── STEP 1: Generate complete HTML via AI Gateway ──
     const systemPrompt = 'You are an elite front-end developer and web designer. You generate complete, production-ready, self-contained HTML websites with embedded CSS and JavaScript. You return ONLY raw HTML code — no markdown, no code fences, no explanation, no commentary. The output must start with <!DOCTYPE html> and end with </html>.';
@@ -93,97 +74,12 @@ Return ONLY the complete HTML file. Start with <!DOCTYPE html> and end with </ht
       return Response.json({ error: `Website generation failed: ${e.message}` }, { status: 502 });
     }
 
-    // ── STEP 2: Prepare the website (inject contact form + handler) ──
-    const contactToken = randomToken();
-    const tokenHash = await hashContactToken(contactToken);
-    const workingBuildId = build?.id || `pending_${Date.now()}`;
-    let html;
-    try {
-      html = prepareWebsite(rawHtml, workingBuildId);
-    } catch (e) {
-      if (build) await db.SystemBuild.update(build.id, { status: 'failed', last_error: `Generated site failed validation: ${e.message}`.slice(0, 1500) });
-      return Response.json({ error: `Generated website was incomplete: ${e.message}` }, { status: 500 });
-    }
-
-    // ── STEP 3: Deploy to Vercel ──
-    const vercelToken = secrets.get('VERCEL_ACCESS_TOKEN') || secrets.get('VERCEL_TOKEN');
-    if (!vercelToken) {
-      if (build) await db.SystemBuild.update(build.id, { status: 'failed', last_error: 'Vercel access token not configured.' });
-      return Response.json({ error: 'Vercel access token not configured. Add VERCEL_ACCESS_TOKEN to deploy websites.' }, { status: 502 });
-    }
-
-    const projectName = sanitizeProjectName(businessName || niche);
-    const files = websiteFiles(html, workingBuildId, contactToken).map(f => ({ file: f.file, data: toBase64(f.data), encoding: 'base64' }));
-
-    const deployRes = await fetch('https://api.vercel.com/v13/deployments', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${vercelToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: projectName,
-        files,
-        target: 'production',
-        projectSettings: { framework: null },
-      }),
-    });
-
-    if (!deployRes.ok) {
-      const errText = await deployRes.text().catch(() => '');
-      if (build) await db.SystemBuild.update(build.id, { status: 'failed', last_error: `Vercel deployment failed (${deployRes.status}): ${errText.slice(0, 400)}` });
-      return Response.json({ error: `Vercel deployment failed (${deployRes.status}): ${errText.slice(0, 300)}` }, { status: 502 });
-    }
-
-    const deployData = await deployRes.json();
-    const deployUrl = deployData.url ? `https://${deployData.url}` : null;
-
-    // ── STEP 4: Persist / update the build record ──
-    const buildPayload = {
-      title: businessName || `${niche} website`,
-      build_type: 'website',
-      what_to_build: `AI-generated ${style} website for a ${niche} business`,
-      how_it_looks: style,
-      how_it_functions: 'Single-page responsive HTML site with hero, services, about, testimonials, and working contact form',
-      what_it_connects_to: 'Deployed on Vercel; enquiries saved via saveWebsiteContact',
-      what_it_says: `Content for a ${niche} business`,
-      how_it_operates: 'Static site + serverless contact handler',
-      deliver_to: deployUrl || 'Vercel deployment',
-      status: 'delivered',
-      result: deployUrl,
-      deployment_id: deployData.id,
-      deployment_url: deployUrl,
-      project_name: projectName,
-      contact_token_hash: tokenHash,
-      contact_verified: false,
-      owner_id: ownerId,
-      batch_id: batchId || build?.batch_id || null,
-      ai_provider: provider,
-      ai_model: model,
-      source_html: html,
-      build_stage: 'Deployed',
-      last_error: '',
-    };
-
-    let buildRecord;
-    if (build) {
-      buildRecord = await db.SystemBuild.update(build.id, buildPayload);
-    } else {
-      buildRecord = await db.SystemBuild.create(buildPayload);
-    }
-
-    if (batchId || buildRecord.batch_id) {
-      await refreshFactoryBatch(base44, batchId || buildRecord.batch_id);
-    }
-
-    return Response.json({
-      niche, style, business_name: businessName,
-      deploy_url: deployUrl,
-      deployment_id: deployData.id,
-      project_name: projectName,
-      build_id: buildRecord.id,
-      contact_token: contactToken,
-      ai_provider: provider,
-      ai_model: model,
-      status: 'deployed',
-    });
+    const html = prepareWebsite(rawHtml,build.id);
+    const uri = await storeWebsiteSource(base44,html);
+    const updated = await db.SystemBuild.update(build.id,{studio_draft_uri:uri,draft_saved_at:new Date().toISOString(),ai_provider:provider,ai_model:model,how_it_looks:style,build_stage:'Draft ready',status:'spec_submitted'});
+    if (body.draft_only === true) return Response.json({build_id:build.id,status:'draft_ready',ai_provider:provider,ai_model:model});
+    const result = await publishWebsite(base44,updated,html);
+    return Response.json({...result,niche,style,business_name:businessName,ai_provider:provider,ai_model:model});
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
