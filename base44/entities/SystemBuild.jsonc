@@ -107,6 +107,44 @@
     },
     "ai_model": {
       "type": "string"
+    },
+    "source_html": {
+      "type": "string",
+      "title": "Source HTML",
+      "description": "The prepared HTML source of the deployed site, used by the Studio visual editor."
+    },
+    "custom_domain": {
+      "type": "string",
+      "title": "Custom Domain"
+    },
+    "meta_title": {
+      "type": "string",
+      "title": "Meta Title"
+    },
+    "meta_description": {
+      "type": "string",
+      "title": "Meta Description"
+    },
+    "target_keywords": {
+      "type": "string",
+      "title": "Target Keywords",
+      "description": "Comma-separated"
+    },
+    "competitors": {
+      "type": "string",
+      "title": "Competitors",
+      "description": "Comma-separated competitor domains"
+    },
+    "seo_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "auditing",
+        "audited",
+        "issues"
+      ],
+      "default": "not_started",
+      "title": "SEO Status"
     }
   },
   "required": [

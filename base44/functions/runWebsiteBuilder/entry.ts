@@ -157,6 +157,7 @@ Return ONLY the complete HTML file. Start with <!DOCTYPE html> and end with </ht
       batch_id: batchId || build?.batch_id || null,
       ai_provider: provider,
       ai_model: model,
+      source_html: html,
       build_stage: 'Deployed',
       last_error: '',
     };
