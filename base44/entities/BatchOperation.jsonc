@@ -3,50 +3,36 @@
   "type": "object",
   "properties": {
     "name": {
-      "type": "string",
-      "title": "Batch Name",
-      "description": "A label for this batch operation"
+      "type": "string"
     },
     "batch_size": {
       "type": "number",
-      "default": 1,
-      "title": "Batch Size",
-      "description": "Number of sites to build in this batch"
+      "default": 1
     },
     "template_spec": {
-      "type": "string",
-      "title": "Template Spec",
-      "description": "JSON of the base spec template for each site"
+      "type": "string"
     },
     "variables": {
-      "type": "string",
-      "title": "Variables",
-      "description": "JSON array of per-site variable data"
+      "type": "string"
     },
     "deploy_targets": {
-      "type": "string",
-      "title": "Deploy Targets",
-      "description": "Comma-separated: railway, vercel, github, custom"
+      "type": "string"
     },
     "google_connect": {
       "type": "boolean",
-      "default": true,
-      "title": "Auto-Connect Google"
+      "default": true
     },
     "social_connect": {
       "type": "boolean",
-      "default": true,
-      "title": "Auto-Connect Social"
+      "default": true
     },
     "video_generate": {
       "type": "boolean",
-      "default": false,
-      "title": "Auto-Generate Videos"
+      "default": false
     },
     "content_optimize": {
       "type": "boolean",
-      "default": true,
-      "title": "Auto-Optimize Content"
+      "default": true
     },
     "status": {
       "type": "string",
@@ -54,41 +40,43 @@
         "queued",
         "dispatching",
         "running",
+        "blocked",
         "complete",
         "failed"
       ],
-      "default": "queued",
-      "title": "Status"
+      "default": "queued"
     },
     "progress": {
       "type": "number",
-      "default": 0,
-      "title": "Progress %"
+      "default": 0
     },
     "sites_built": {
       "type": "number",
-      "default": 0,
-      "title": "Sites Built"
+      "default": 0
     },
     "sites_deployed": {
       "type": "number",
-      "default": 0,
-      "title": "Sites Deployed"
+      "default": 0
     },
     "videos_generated": {
       "type": "number",
-      "default": 0,
-      "title": "Videos Generated"
+      "default": 0
     },
     "social_posts": {
       "type": "number",
-      "default": 0,
-      "title": "Social Posts"
+      "default": 0
     },
     "task_count": {
       "type": "number",
-      "default": 0,
-      "title": "Total Tasks Dispatched"
+      "default": 0
+    },
+    "sites_failed": {
+      "type": "number",
+      "default": 0
+    },
+    "blockers": {
+      "type": "string",
+      "maxLength": 5000
     }
   },
   "required": [
