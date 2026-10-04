@@ -4,8 +4,7 @@
   "properties": {
     "title": {
       "type": "string",
-      "title": "Title",
-      "description": "Name of the website or system to build"
+      "title": "Title"
     },
     "build_type": {
       "type": "string",
@@ -19,43 +18,28 @@
         "tool",
         "system"
       ],
-      "default": "website",
-      "title": "Build Type"
+      "default": "website"
     },
     "what_to_build": {
-      "type": "string",
-      "title": "What to Build",
-      "description": "Describe exactly what you want built"
+      "type": "string"
     },
     "how_it_looks": {
-      "type": "string",
-      "title": "How It Looks",
-      "description": "Design style, colors, brand aesthetic, layout"
+      "type": "string"
     },
     "how_it_functions": {
-      "type": "string",
-      "title": "How It Functions",
-      "description": "Features, flows, behaviors, interactions"
+      "type": "string"
     },
     "what_it_connects_to": {
-      "type": "string",
-      "title": "What It Connects To",
-      "description": "Integrations, APIs, data sources, external services"
+      "type": "string"
     },
     "what_it_says": {
-      "type": "string",
-      "title": "What It Says",
-      "description": "Content, copy, messaging, tone of voice"
+      "type": "string"
     },
     "how_it_operates": {
-      "type": "string",
-      "title": "How It Operates",
-      "description": "Autonomous behaviors, schedules, triggers, workflows"
+      "type": "string"
     },
     "deliver_to": {
-      "type": "string",
-      "title": "Deliver To",
-      "description": "Where to deliver: GitHub repo, Railway, domain URL, email"
+      "type": "string"
     },
     "status": {
       "type": "string",
@@ -67,17 +51,62 @@
         "delivered",
         "failed"
       ],
-      "default": "spec_submitted",
-      "title": "Status"
+      "default": "spec_submitted"
     },
     "result": {
-      "type": "string",
-      "title": "Result / Delivery URL",
-      "description": "The delivered URL, repo link, or build output"
+      "type": "string"
     },
     "task_id": {
+      "type": "string"
+    },
+    "owner_id": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": "string"
+    },
+    "factory_version": {
+      "type": "number"
+    },
+    "build_stage": {
       "type": "string",
-      "title": "Linked AgentTask ID"
+      "maxLength": 300
+    },
+    "last_error": {
+      "type": "string",
+      "maxLength": 1500
+    },
+    "run_key": {
+      "type": "string"
+    },
+    "artifact_uri": {
+      "type": "string"
+    },
+    "deployment_id": {
+      "type": "string"
+    },
+    "deployment_url": {
+      "type": "string"
+    },
+    "project_name": {
+      "type": "string"
+    },
+    "contact_token_hash": {
+      "type": "string"
+    },
+    "contact_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_provider": {
+      "type": "string"
+    },
+    "ai_model": {
+      "type": "string"
     }
   },
   "required": [
@@ -90,6 +119,9 @@
       "$or": [
         {
           "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.owner_id": "{{user.id}}"
         },
         {
           "user_condition": {
