@@ -59,6 +59,13 @@ export default async function(req) {
       content_optimize: body.content_optimize !== false
     };
 
+    // Resolve the owner: worker calls run as admin service role; user calls use the signed-in admin.
+    let ownerId = null;
+    if (!isWorker) {
+      const user = await base44.auth.me();
+      ownerId = user?.id || null;
+    }
+
     // ── Create the batch record ──
     const batch = await base44.asServiceRole.entities.BatchOperation.create({
       name,
@@ -80,14 +87,14 @@ export default async function(req) {
       const spec = applyTemplate(template, v, i, name);
       const domain = v.domain || `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${i + 1}.com`;
 
-      builds.push({ ...spec, status: 'spec_submitted' });
+      builds.push({ ...spec, status: 'spec_submitted', owner_id: ownerId, batch_id: batch.id });
 
-      // Build task
+      // Build task — dispatches the real website builder, not a plan.
       tasks.push({
         agent_name: 'meta_architect',
         task_type: 'build_system',
         title: `Build: ${spec.title}`,
-        description: JSON.stringify({ ...spec, build_index: i, domain, free_mode: freeMode }),
+        description: JSON.stringify({ ...spec, build_index: i, domain, free_mode: freeMode, batch_id: batch.id, owner_id: ownerId }),
         priority: 'high',
         autonomous: true,
         status: 'pending'

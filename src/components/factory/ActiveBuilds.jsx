@@ -56,10 +56,16 @@ export default function ActiveBuilds({ refreshKey }) {
                   <span className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0" style={{ background: meta.bg, color: meta.color }}>{meta.label}</span>
                 </div>
                 {b.what_to_build && <p className="text-xs text-black/55 mt-1.5 line-clamp-2">{b.what_to_build}</p>}
-                {b.result && (
-                  <a href={b.result} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-[#CCBB00] mt-2 hover:underline">
-                    <ExternalLink className="w-3 h-3" /> {b.result}
+                {b.build_stage && b.status !== 'delivered' && b.status !== 'failed' && (
+                  <p className="text-xs text-black/40 mt-1.5">{b.build_stage}</p>
+                )}
+                {b.deployment_url && (
+                  <a href={b.deployment_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-[#CCBB00] mt-2 hover:underline">
+                    <ExternalLink className="w-3 h-3" /> {b.deployment_url}
                   </a>
+                )}
+                {b.status === 'failed' && b.last_error && (
+                  <p className="text-xs text-red-600 mt-1.5 line-clamp-3">{b.last_error}</p>
                 )}
               </div>
             );

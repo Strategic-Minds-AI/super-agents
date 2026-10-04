@@ -138,35 +138,30 @@ export default async function(req) {
               return { email: emailResult };
 
             } else if (task.task_type === 'build_system') {
-              // System build — parse the spec from description, call MetaArchitect to plan + generate
+              // System build — generate a real website and deploy it to Vercel.
               let spec = {};
               try { spec = JSON.parse(task.description || '{}'); } catch (e) { spec = {}; }
-              // FREE MODE: skip the LLM call, use the template spec directly — zero credits
-              if (spec.free_mode) {
-                const result = { mission_brief: spec, health_score: 100, free_mode: true, note: 'Template used directly — no LLM call' };
-                reportData = { type: 'System Build (Free)', domain: spec.title, ...result };
-                if (spec.build_id) {
-                  await base44.asServiceRole.entities.SystemBuild.update(spec.build_id, {
-                    status: 'building',
-                    result: 'Template applied — no LLM planning needed'
-                  }).catch(() => {});
-                }
-                return { build: result };
-              }
-              const goal = spec.what_to_build || spec.title || 'Build system';
+              const niche = spec.niche || spec.title || 'local business';
+              const style = spec.how_it_looks || spec.style || 'modern professional';
+              const businessName = spec.business_name || spec.title || '';
+              const invokeArgs = {
+                niche, style, business_name: businessName,
+                build_id: spec.build_id || null,
+                batch_id: spec.batch_id || null,
+              };
               const res = await withRetry(() =>
-                base44.asServiceRole.functions.invoke('runMetaArchitect', { goal, spec }),
+                base44.asServiceRole.functions.invoke('runWebsiteBuilder', invokeArgs),
                 { retries: 1 }
               );
-              const result = res.data?.result || {};
-              reportData = { type: 'System Build', domain: spec.title, healthScore: result.health_score, ...result };
-              // Update the SystemBuild record if we have the id
-              if (spec.build_id) {
-                await base44.asServiceRole.entities.SystemBuild.update(spec.build_id, {
-                  status: result.mission_brief ? 'building' : 'planning',
-                  result: result.mission_brief ? JSON.stringify(result.mission_brief).slice(0, 1000) : null
-                }).catch(() => {});
-              }
+              const result = res.data || {};
+              if (result.error) throw new Error(result.error);
+              reportData = {
+                type: 'System Build',
+                domain: spec.title || niche,
+                deploy_url: result.deploy_url,
+                build_id: result.build_id,
+                status: result.status,
+              };
               return { build: result };
 
             } else if (task.task_type === 'google_connect' && task.domain) {

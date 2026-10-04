@@ -50,7 +50,7 @@ export default function BatchHistory({ refreshKey }) {
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="font-bold text-black text-sm truncate">{b.name}</div>
-                    <div className="text-xs text-black/45">{b.batch_size} sites · {b.task_count} tasks · {b.progress || 0}%</div>
+                    <div className="text-xs text-black/45">{b.batch_size} sites · {b.sites_deployed || 0} deployed · {b.sites_failed || 0} failed · {b.progress || 0}%</div>
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0" style={{ background: meta.bg, color: meta.color }}>{meta.label}</span>
                 </div>

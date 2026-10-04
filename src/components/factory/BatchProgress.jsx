@@ -41,8 +41,8 @@ export default function BatchProgress({ batchId, onLaunched }) {
   const stats = [
     { label: "Built", value: batch.sites_built, color: "#16A34A" },
     { label: "Deployed", value: batch.sites_deployed, color: "#2563EB" },
-    { label: "Videos", value: batch.videos_generated, color: "#7C3AED" },
-    { label: "Posts", value: batch.social_posts, color: "#DC2626" }
+    { label: "Failed", value: batch.sites_failed, color: "#DC2626" },
+    { label: "Posts", value: batch.social_posts, color: "#7C3AED" }
   ];
 
   return (
