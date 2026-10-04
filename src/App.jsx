@@ -20,6 +20,7 @@ import MissionControl from '@/pages/MissionControl';
 import SystemFactory from '@/pages/SystemFactory';
 import BatchOperations from '@/pages/BatchOperations';
 import WebsiteFactory from '@/pages/WebsiteFactory';
+import WebsiteStudio from '@/pages/WebsiteStudio';
 import Analytics from '@/pages/Analytics';
 import OAuthConsent from '@/pages/OAuthConsent';
 
@@ -64,6 +65,7 @@ const AuthenticatedApp = () => {
         <Route path="/factory" element={<SystemFactory />} />
         <Route path="/batch" element={<BatchOperations />} />
         <Route path="/website-factory" element={<WebsiteFactory />} />
+        <Route path="/studio" element={<WebsiteStudio />} />
         <Route path="/analytics" element={<Analytics />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
