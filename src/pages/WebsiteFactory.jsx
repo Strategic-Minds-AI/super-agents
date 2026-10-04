@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Loader2, Rocket, Factory } from "lucide-react";
 import PipelineOverview from "@/components/factory/PipelineOverview";
 import DomainDiscovery from "@/components/factory/DomainDiscovery";
+import WebsiteBuilder from "@/components/factory/WebsiteBuilder";
 import TemplateGenerator from "@/components/factory/TemplateGenerator";
 import RepoGenerator from "@/components/factory/RepoGenerator";
 import SandboxPanel from "@/components/factory/SandboxPanel";
@@ -48,6 +49,7 @@ export default function WebsiteFactory() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+        <WebsiteBuilder />
         <CostOptimizer freeMode={freeMode} setFreeMode={setFreeMode} />
         <PipelineOverview activeStage={stage} />
         <IntegrationStack />
