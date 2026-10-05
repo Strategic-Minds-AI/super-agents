@@ -57,6 +57,70 @@
       "title": "Autonomous",
       "description": "Can execute without approval",
       "default": false
+    },
+    "packet_id": {
+      "type": "string"
+    },
+    "source_truth_version": {
+      "type": "string"
+    },
+    "engines": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "action_class": {
+      "type": "string",
+      "enum": [
+        "READ",
+        "DRAFT",
+        "BRANCH_WRITE",
+        "PREVIEW_WRITE",
+        "PROTECTED"
+      ],
+      "default": "DRAFT"
+    },
+    "idempotency_key": {
+      "type": "string"
+    },
+    "timeout_ms": {
+      "type": "number",
+      "default": 120000
+    },
+    "retry_budget": {
+      "type": "number",
+      "default": 2
+    },
+    "lease_owner": {
+      "type": "string"
+    },
+    "lease_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "validation_contract": {
+      "type": "string"
+    },
+    "rollback_pointer": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "terminal_state": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "UNKNOWN"
+      ]
     }
   },
   "required": [
