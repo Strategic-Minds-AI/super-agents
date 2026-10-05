@@ -119,7 +119,7 @@ export default async function(req) {
               return { audit };
 
             } else if (task.task_type === 'request_indexing' && task.domain) {
-              const result = { indexing_requested: true, domain: task.domain, note: 'GSC API not wired — requires connector auth' };
+              const result = { indexing_requested: false, status: 'blocked', blocker: 'google_search_console_connector_not_verified', domain: task.domain, note: 'No indexing request was sent. Connect and verify Google Search Console before execution.' };
               reportData = { type: 'Indexing Request', domain: task.domain };
               return result;
 
@@ -174,7 +174,7 @@ export default async function(req) {
                 sitemapOk = r.ok;
                 if (r.ok) { const xml = await r.text(); urlCount = (xml.match(/<loc>/g) || []).length; }
               } catch (e) {}
-              const result = { google_connected: true, sitemap_submitted: sitemapOk, urls_found: urlCount, indexing_requested: true, ga4_setup: true, domain };
+              const result = { google_connected: false, status: 'blocked', blocker: 'google_connectors_not_verified', sitemap_verified: sitemapOk, urls_found: urlCount, sitemap_submitted: false, indexing_requested: false, ga4_setup: false, domain, note: 'Public sitemap verification completed only. Google Search Console and Analytics mutations require verified connectors and receipts.' };
               reportData = { type: 'Google Auto-Connect', domain, ...result };
               return result;
 
@@ -183,7 +183,7 @@ export default async function(req) {
               let parsed = {};
               try { parsed = JSON.parse(task.description || '{}'); } catch (e) { parsed = {}; }
               const platforms = ['facebook', 'instagram', 'twitter', 'linkedin', 'tiktok'];
-              const result = { social_connected: true, platforms, posts_created: platforms.length, auto_manage: true, domain: task.domain };
+              const result = { social_connected: false, status: 'blocked', blocker: 'social_connectors_not_verified', requested_platforms: platforms, posts_created: 0, auto_manage: false, domain: task.domain, note: 'No social accounts were connected and no posts were published. Provider connectors and approval are required.' };
               reportData = { type: 'Social Auto-Connect', domain: task.domain, ...result };
               return result;
 
@@ -214,7 +214,7 @@ export default async function(req) {
                 canonical_url: true, robots_txt: true, ssl_certificate: true,
                 structured_data: true, internal_links: true, external_links: true
               };
-              const result = { content_optimized: true, google_score: 100, checklist, domain: task.domain };
+              const result = { content_optimized: false, status: 'analysis_only', google_score: null, checklist, domain: task.domain, note: 'Checklist generated only. A score requires measured live-site validation; no optimization or Google score is claimed here.' };
               reportData = { type: 'Content Optimization', domain: task.domain, ...result };
               return result;
 
