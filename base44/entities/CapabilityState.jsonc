@@ -1,0 +1,42 @@
+{
+  "name": "CapabilityState",
+  "type": "object",
+  "properties": {
+    "capability_id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "engine": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "LIVE",
+        "DEGRADED",
+        "BLOCKED",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "evidence_ref": {
+      "type": "string"
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detail": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "capability_id",
+    "state"
+  ]
+}
