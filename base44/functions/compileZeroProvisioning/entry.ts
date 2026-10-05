@@ -22,8 +22,15 @@ export default async function(req) {
     const observed = {};
     for (const state of states) {
       if (!state.provider) continue;
-      const current = observed[state.provider];
-      if (!current || String(state.last_verified_at || '') > String(current.last_verified_at || '')) observed[state.provider] = state;
+      observed[state.provider] ||= { provider_state: 'UNKNOWN', capabilities: {} };
+      if (state.capability_id === 'provider.session') {
+        observed[state.provider].provider_state = state.state;
+        continue;
+      }
+      const current = observed[state.provider].capabilities[state.capability_id];
+      if (!current || String(state.last_verified_at || '') > String(current.last_verified_at || '')) {
+        observed[state.provider].capabilities[state.capability_id] = state;
+      }
     }
     const plan = compileProviderPlan(requiredCapabilities, observed);
     const protectedHolds = ['production_deploy','default_branch_merge','production_database_change','rls_change','dns_change','secret_change','payment_or_spend','permission_escalation','destructive_action','irreversible_migration','customer_or_public_message'];
