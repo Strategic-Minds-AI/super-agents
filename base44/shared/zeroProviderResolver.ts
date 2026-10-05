@@ -25,12 +25,22 @@ export function compileProviderPlan(requiredCapabilities = [], observed = {}) {
   const requirements = [];
   for (const capability of requiredCapabilities) {
     const candidates = providerCandidatesForCapability(capability);
-    const live = candidates.filter((id) => observed[id]?.state === 'LIVE');
+    const live = candidates.filter((id) => observed[id]?.capabilities?.[capability]?.state === 'LIVE');
+    const degraded = candidates.filter((id) => observed[id]?.capabilities?.[capability]?.state === 'DEGRADED');
+    const providerLive = candidates.filter((id) => observed[id]?.provider_state === 'LIVE');
+    const selected = live[0] || degraded[0] || providerLive[0] || candidates[0] || null;
+    const selectedState = live[0]
+      ? 'LIVE'
+      : degraded[0]
+        ? 'DEGRADED'
+        : providerLive[0]
+          ? 'PROVIDER_LIVE_CAPABILITY_UNVERIFIED'
+          : (candidates.length ? 'UNVERIFIED' : 'MISSING');
     requirements.push({
       capability,
       candidates,
-      selected: live[0] || candidates[0] || null,
-      selected_state: live[0] ? 'LIVE' : (candidates.length ? 'UNVERIFIED' : 'MISSING'),
+      selected,
+      selected_state: selectedState,
       blocked: candidates.length === 0
     });
   }
@@ -38,7 +48,7 @@ export function compileProviderPlan(requiredCapabilities = [], observed = {}) {
     version: 'ZERO-PROVIDER-RESOLVER-v1',
     requirements,
     missing: requirements.filter((r) => r.blocked).map((r) => r.capability),
-    unverified: requirements.filter((r) => r.selected_state === 'UNVERIFIED').map((r) => r.capability),
+    unverified: requirements.filter((r) => !['LIVE','DEGRADED'].includes(r.selected_state) && !r.blocked).map((r) => r.capability),
     ready: requirements.every((r) => !r.blocked),
     rule: 'capability_first_provider_second'
   };
