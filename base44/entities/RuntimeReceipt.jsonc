@@ -1,0 +1,92 @@
+{
+  "name": "RuntimeReceipt",
+  "type": "object",
+  "properties": {
+    "receipt_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "build_id": {
+      "type": "string"
+    },
+    "packet_id": {
+      "type": "string"
+    },
+    "source_truth_version": {
+      "type": "string"
+    },
+    "action_class": {
+      "type": "string",
+      "enum": [
+        "READ",
+        "DRAFT",
+        "BRANCH_WRITE",
+        "PREVIEW_WRITE",
+        "PROTECTED"
+      ]
+    },
+    "engine": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "UNKNOWN"
+      ]
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "validation_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "rollback_pointer": {
+      "type": "string"
+    },
+    "git_sha": {
+      "type": "string"
+    },
+    "deployment_id": {
+      "type": "string"
+    },
+    "deployment_url": {
+      "type": "string"
+    },
+    "attempt": {
+      "type": "number",
+      "default": 1
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detail": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "receipt_id",
+    "packet_id",
+    "status"
+  ]
+}
