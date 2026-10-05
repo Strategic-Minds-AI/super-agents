@@ -1,0 +1,71 @@
+{
+  "name": "ProvisioningManifest",
+  "type": "object",
+  "properties": {
+    "manifest_id": {
+      "type": "string"
+    },
+    "project_name": {
+      "type": "string"
+    },
+    "build_id": {
+      "type": "string"
+    },
+    "source_truth_version": {
+      "type": "string"
+    },
+    "target_mode": {
+      "type": "string",
+      "enum": [
+        "sandbox",
+        "preview",
+        "production"
+      ],
+      "default": "preview"
+    },
+    "required_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "provider_plan": {
+      "type": "string"
+    },
+    "resources": {
+      "type": "string"
+    },
+    "protected_holds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "compiled",
+        "ready",
+        "blocked",
+        "executing",
+        "validated",
+        "failed"
+      ],
+      "default": "compiled"
+    },
+    "rollback_pointer": {
+      "type": "string"
+    },
+    "compiled_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "manifest_id",
+    "project_name",
+    "source_truth_version"
+  ]
+}
