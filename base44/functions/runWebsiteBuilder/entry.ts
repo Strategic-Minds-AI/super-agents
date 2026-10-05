@@ -45,11 +45,11 @@ Requirements — every one of these MUST be in the output:
 5. Hero section: full-viewport-height background with a compelling headline, subheadline, and a prominent CTA button. CSS gradient background.
 6. Services section: 3-4 cards with inline SVG icons, titles, and descriptions specific to a ${niche} business.
 7. About section: 2-column layout with text and a visual element.
-8. Testimonials section: 2-3 customer quotes with names and inline SVG star ratings.
-9. Contact section: a contact form (name, email, phone, message) with labels and a submit button, plus business hours and contact info.
+8. Proof section: use verified testimonials/reviews ONLY when they are explicitly provided in the source brief. Otherwise create a non-testimonial trust/value section with no invented names, quotes, ratings, awards, metrics, or claims.
+9. Contact section: a contact form (name, email, phone, message) with labels and a submit button. Include business hours, phone, email, address, or other contact facts ONLY when explicitly provided in the source brief.
 10. Footer: copyright, quick links, inline SVG social icons.
 11. All JavaScript in a <script> tag before </body> — hamburger toggle, smooth scroll, form validation, scroll-triggered fade-in via IntersectionObserver.
-12. All content specific to a ${niche} business — real-sounding service names, realistic testimonials, actual business hours. No "Lorem ipsum".
+12. All content must be specific to the ${niche} business while remaining evidence-safe. Never fabricate people, testimonials, reviews, awards, certifications, metrics, prices, addresses, business history, operating hours, or customer outcomes. Use only facts supplied in the source brief; where facts are missing, use neutral non-factual copy. No "Lorem ipsum".
 13. The page must look polished at every viewport from 320px to 1920px.
 
 Return ONLY the complete HTML file. Start with <!DOCTYPE html> and end with </html>. No markdown fences, no explanation.`;
@@ -76,10 +76,28 @@ Return ONLY the complete HTML file. Start with <!DOCTYPE html> and end with </ht
 
     const html = prepareWebsite(rawHtml,build.id);
     const uri = await storeWebsiteSource(base44,html);
-    const updated = await db.SystemBuild.update(build.id,{studio_draft_uri:uri,draft_saved_at:new Date().toISOString(),ai_provider:provider,ai_model:model,how_it_looks:style,build_stage:'Draft ready',status:'spec_submitted'});
-    if (body.draft_only === true) return Response.json({build_id:build.id,status:'draft_ready',ai_provider:provider,ai_model:model});
+    const updated = await db.SystemBuild.update(build.id,{studio_draft_uri:uri,draft_saved_at:new Date().toISOString(),ai_provider:provider,ai_model:model,how_it_looks:style,build_stage:'Draft ready for governed preview handoff',status:'spec_submitted'});
+
+    // ZERO doctrine: website generation never promotes itself to production.
+    // Normal completion is a draft artifact handed to the GitHub/Vercel preview adapter.
+    // Production publication is a separate protected action and requires an explicit flag.
+    const productionApproved = body.publish_mode === 'production' && body.production_approved === true;
+    if (!productionApproved) {
+      return Response.json({
+        build_id: build.id,
+        status: 'preview_handoff_required',
+        artifact_uri: uri,
+        niche,
+        style,
+        business_name: businessName,
+        ai_provider: provider,
+        ai_model: model,
+        next_action: 'Create or update a private GitHub preview branch, deploy it to Vercel Preview, validate, then promote only after explicit production approval.'
+      });
+    }
+
     const result = await publishWebsite(base44,updated,html);
-    return Response.json({...result,niche,style,business_name:businessName,ai_provider:provider,ai_model:model});
+    return Response.json({...result,niche,style,business_name:businessName,ai_provider:provider,ai_model:model,production_approved:true});
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
