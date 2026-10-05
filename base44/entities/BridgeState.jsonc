@@ -1,0 +1,59 @@
+{
+  "name": "BridgeState",
+  "type": "object",
+  "properties": {
+    "engine": {
+      "type": "string"
+    },
+    "route": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "LIVE",
+        "DEGRADED",
+        "BLOCKED",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "chatgpt",
+        "runtime",
+        "base44",
+        "api",
+        "worker"
+      ]
+    },
+    "read_capable": {
+      "type": "boolean",
+      "default": false
+    },
+    "write_capable": {
+      "type": "boolean",
+      "default": false
+    },
+    "persistent_capable": {
+      "type": "boolean",
+      "default": false
+    },
+    "evidence_ref": {
+      "type": "string"
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "detail": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "engine",
+    "route",
+    "state"
+  ]
+}
