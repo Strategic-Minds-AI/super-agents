@@ -1,4 +1,6 @@
-export const ZERO_VERSION = '1.0.0';
+import { resolveZeroEngines } from './zeroRoutingMatrix.ts';
+
+export const ZERO_VERSION = '1.1.0';
 
 export const ZERO_ACCEPTANCE = Object.freeze({
   visual_parity_min: 0.99,
@@ -99,21 +101,21 @@ export function compileZeroMission(input = {}) {
   const selectionGate = approvedWebPack ? 'APPROVED_WEB_PACK_PRESENT' : 'AWAIT_CLIENT_SELECTION';
 
   const workPackets = [
-    { id: 'WP-01', phase: 'PUBLIC_BUSINESS_RESEARCH', owner: 'orchestrator', autonomous: true, gate: 'lawful_public_business_only' },
-    { id: 'WP-02', phase: 'CLIENT_INTELLIGENCE', owner: 'orchestrator', autonomous: true, gate: 'evidence_labels_required' },
-    { id: 'WP-03', phase: 'CREATIVE_10_10_10', owner: 'brand_guardian', autonomous: true, gate: 'no_fabricated_claims' },
+    { id: 'WP-01', phase: 'PUBLIC_BUSINESS_RESEARCH', owner: 'orchestrator', engines: resolveZeroEngines('research'), autonomous: true, gate: 'lawful_public_business_only' },
+    { id: 'WP-02', phase: 'CLIENT_INTELLIGENCE', owner: 'orchestrator', engines: resolveZeroEngines('business_intelligence'), autonomous: true, gate: 'evidence_labels_required' },
+    { id: 'WP-03', phase: 'CREATIVE_10_10_10', owner: 'brand_guardian', engines: resolveZeroEngines('website_build'), autonomous: true, gate: 'no_fabricated_claims' },
     { id: 'WP-04', phase: 'CLIENT_SELECTION', owner: 'orchestrator', autonomous: false, gate: 'operator_or_client_selection_required' }
   ];
 
   if (approvedWebPack) {
     workPackets.push(
-      { id: 'WP-05', phase: 'VISUAL_LOCK', owner: 'brand_guardian', autonomous: true, gate: 'approved_web_pack_is_authoritative' },
-      { id: 'WP-06', phase: 'CAPABILITY_BOOTSTRAP', owner: 'orchestrator', autonomous: true, gate: 'fail_closed_on_missing_capability' },
-      { id: 'WP-07', phase: 'SANDBOX_PROVISION', owner: 'code_architect', autonomous: true, gate: 'preview_only_no_production' },
-      { id: 'WP-08', phase: 'BUILD', owner: 'code_architect', autonomous: true, gate: 'visual_lock_no_redesign' },
+      { id: 'WP-05', phase: 'VISUAL_LOCK', owner: 'brand_guardian', engines: resolveZeroEngines('visual_lock'), autonomous: true, gate: 'approved_web_pack_is_authoritative' },
+      { id: 'WP-06', phase: 'CAPABILITY_BOOTSTRAP', owner: 'orchestrator', engines: resolveZeroEngines('gpt_routing'), autonomous: true, gate: 'fail_closed_on_missing_capability' },
+      { id: 'WP-07', phase: 'SANDBOX_PROVISION', owner: 'code_architect', engines: resolveZeroEngines('provisioning'), autonomous: true, gate: 'preview_only_no_production' },
+      { id: 'WP-08', phase: 'BUILD', owner: 'code_architect', engines: resolveZeroEngines(buildType === 'website' || buildType === 'landing_page' ? 'website_build' : 'system_build'), autonomous: true, gate: 'visual_lock_no_redesign' },
       { id: 'WP-09', phase: 'PREVIEW_DEPLOY', owner: 'code_architect', autonomous: true, gate: 'vercel_preview_only' },
-      { id: 'WP-10', phase: 'INDEPENDENT_VALIDATE', owner: 'swarm', autonomous: true, gate: 'validator_may_not_edit' },
-      { id: 'WP-11', phase: 'BOUNDED_REPAIR', owner: 'code_architect', autonomous: true, gate: 'max_3_same_class_attempts' },
+      { id: 'WP-10', phase: 'INDEPENDENT_VALIDATE', owner: 'swarm', engines: resolveZeroEngines('validation'), autonomous: true, gate: 'validator_may_not_edit' },
+      { id: 'WP-11', phase: 'BOUNDED_REPAIR', owner: 'code_architect', engines: ['faultline','auto_builder'], autonomous: true, gate: 'max_3_same_class_attempts' },
       { id: 'WP-12', phase: 'RECEIPT', owner: 'orchestrator', autonomous: true, gate: 'evidence_backed_terminal_state_only' },
       { id: 'WP-13', phase: 'RELEASE_GATE', owner: 'orchestrator', autonomous: false, gate: 'explicit_production_approval_required' }
     );
