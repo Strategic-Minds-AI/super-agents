@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Rocket, Factory } from "lucide-react";
+import { Loader2, Rocket } from "lucide-react";
 import PipelineOverview from "@/components/factory/PipelineOverview";
 import DomainDiscovery from "@/components/factory/DomainDiscovery";
 import WebsiteBuilder from "@/components/factory/WebsiteBuilder";

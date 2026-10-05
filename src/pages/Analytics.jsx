@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Loader2, RefreshCw, Activity, Globe, Hammer, Layers, Zap, Link2, Rocket, Clock, CheckCircle2, AlertTriangle, TrendingUp, Wifi } from "lucide-react";
+import { Loader2, RefreshCw, Activity, Globe, Hammer, Layers, Zap, Link2, Rocket, Clock, Wifi } from "lucide-react";
 
 const STATUS_COLORS = {
   pending: "#8A7300", in_progress: "#2563EB", completed: "#16A34A", failed: "#DC2626",

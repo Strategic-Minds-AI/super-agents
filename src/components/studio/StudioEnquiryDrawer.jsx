@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { X, Mail, Phone, Loader2, Inbox } from "lucide-react";
+import { X, Phone, Loader2, Inbox } from "lucide-react";
 
 export default function StudioEnquiryDrawer({ site, onClose }) {
   const [enquiries, setEnquiries] = useState([]);

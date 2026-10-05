@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Search, Globe, CheckCircle2, XCircle, ShoppingCart, DollarSign } from "lucide-react";
+import { Loader2, Search, Globe, CheckCircle2, ShoppingCart, DollarSign } from "lucide-react";
 
 const TLDS = ["com", "net", "org", "store", "online", "site", "blog", "co", "io", "ai", "tech", "biz", "xyz"];
 

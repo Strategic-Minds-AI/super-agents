@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, Loader2, Globe, ShieldCheck, AlertTriangle, ExternalLink } from "lucide-react";
+import { Plus, Loader2, Globe, ExternalLink } from "lucide-react";
 
 const STATUS_STYLE = {
   onboarding: "bg-[#FFF7B3] text-[#8A7300]",

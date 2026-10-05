@@ -1,5 +1,5 @@
 import React from "react";
-import { Monitor, Cloud, Play, Square, Copy } from "lucide-react";
+import { Monitor, Cloud, Play, Copy } from "lucide-react";
 
 export default function SandboxPanel() {
   const localConfig = `APP_URL=https://super-agents-zero.base44.app\nWORKER_SECRET=<your-secret>\nPOLL_INTERVAL=60000\nMAX_CYCLES=5`;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Loader2, RefreshCw, Play, Activity, CheckCircle2, Clock, AlertTriangle, Zap, ArrowRight } from "lucide-react";
+import { Loader2, RefreshCw, Play, Activity, CheckCircle2, Clock, AlertTriangle, Zap } from "lucide-react";
 
 const STATUS_META = {
   pending: { icon: Clock, color: "#8A7300", bg: "#FFF7B3", label: "Pending" },

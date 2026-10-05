@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Rocket, ArrowRight } from "lucide-react";
+import { Loader2, Rocket } from "lucide-react";
 import BatchBuilder from "@/components/factory/BatchBuilder";
 import OperationToggles from "@/components/factory/OperationToggles";
 import BatchHistory from "@/components/factory/BatchHistory";
