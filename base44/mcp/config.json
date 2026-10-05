@@ -247,6 +247,42 @@
         }
       },
       {
+        "name": "compile_zero_mission",
+        "title": "Compile Super Agents Zero Mission",
+        "description": "Compile the canonical Strategic Minds mission from one project name, exactly five client answers, and an optional approved Web Pack. Creates the SystemBuild source-truth record and deterministic work packets without claiming execution. If an approved Web Pack is present, it becomes authoritative visual source truth for preview build and validation.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "project_name": { "type": "string", "description": "Canonical project name." },
+            "answers": {
+              "type": "array",
+              "minItems": 5,
+              "maxItems": 5,
+              "items": { "type": "string" },
+              "description": "Exactly five non-empty client answers."
+            },
+            "approved_web_pack": {
+              "type": "string",
+              "description": "Optional approved Web Pack image/artifact reference. When supplied, it becomes authoritative Visual Lock source truth."
+            },
+            "build_type": {
+              "type": "string",
+              "enum": ["website","web_app","landing_page","api","automation","dashboard","tool","system"],
+              "default": "website"
+            },
+            "use_supabase": { "type": "boolean", "default": false },
+            "use_railway": { "type": "boolean", "default": false }
+          },
+          "required": ["project_name","answers"]
+        },
+        "handler": "runZeroMission",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      },
+      {
         "name": "generate_template",
         "title": "Generate Website Template",
         "description": "Generate a production-ready, SEO-optimized website template spec using AI. Returns a JSON spec with title, what_to_build, how_it_looks, how_it_functions, what_it_connects_to, what_it_says, how_it_operates, and deliver_to. Call this to get a site blueprint before building.",
