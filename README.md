@@ -1,62 +1,137 @@
-# Base44 Project
+# Strategic Minds Super Agents
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+Canonical repository for the Strategic Minds eight-agent runtime.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+## Current architecture
 
-## Prerequisites
+The repo-native runtime does **not** require Base44.
 
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
-5. Install [Deno](https://docs.deno.com/runtime/getting_started/installation/) — the local Base44 backend runs on it.
-
-Run `base44 --help` (or see the [CLI reference](https://docs.base44.com/developers/references/cli/commands/introduction)) for the full command surface.
-
-## Run Locally
-
-Three commands, from the project root:
-
-```bash
-base44 login   # one-time per machine
-base44 link    # one-time per clone
-base44 dev     # local backend + frontend together
+```text
+GitHub source
+    |
+    +-- agents/                canonical agent definitions
+    +-- runtime/               queue + API + agent execution
+    +-- local-worker/          stateless worker container
+    +-- docker-compose.yml     local persistent eight-agent stack
+    |
+PostgreSQL <-> Runtime API <-> 8 lane workers
+                     |
+               OpenAI Responses API
 ```
 
-Open the frontend URL that `base44 dev` prints (typically `http://localhost:5173`).
+### Agent fleet
 
-Notes:
+1. orchestrator
+2. growth_operator
+3. code_architect
+4. social_strategist
+5. sales_engine
+6. brand_guardian
+7. replicator
+8. swarm
 
-- **Every fresh clone needs `base44 link`.** It writes `base44/.app.jsonc` (the app-id pointer), which is deliberately gitignored. Your app id is in the Builder URL (`app.base44.com/apps/<id>/...`); `base44 link --help` shows the non-interactive flags.
-- **`base44 dev` runs the frontend for you** (via `site.serveCommand` in this repo's `base44/config.jsonc`) — never run `npm run dev` yourself: alone it serves a UI with no backend behind it (`[base44] Proxy not enabled`, every `/api` call fails), and alongside `base44 dev` the second Vite silently takes the next port and you end up looking at the wrong one.
-- **The app must be published at least once for the UI to load under `base44 dev`.** The frontend boots by fetching app settings from the hosted app; before the first publish that fails and every page redirects to login. The local API works regardless.
-- Entities, functions, and auth run locally — entity data is **in-memory only**, wiped when `base44 dev` restarts. Everything else (Core integrations, OAuth login) is forwarded to your deployed app. Full breakdown: [Local development overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview).
+## Local persistent Docker runtime
 
-## Frontend Only, Hosted Backend
+Prerequisites:
+- Docker Desktop / Docker Engine
+- PowerShell on Windows
 
-To work on just the frontend against your app's live hosted backend:
+Start:
 
-```bash
-base44 dev --remote
+```powershell
+.\scripts\docker-up.ps1
 ```
 
-⚠️ In this mode writes go to your app's **production data** — plain `base44 dev` keeps everything local.
+The first run creates a local `.env` with random Postgres/runtime credentials.
 
-## Publish Your Changes
+Add your server-side `OPENAI_API_KEY` to `.env` before allowing model-backed tasks.
 
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+Health:
 
-```bash
-base44 dashboard open
+```powershell
+Invoke-RestMethod http://127.0.0.1:8080/health
 ```
 
-This repo syncs to Base44 through git, so publish from the dashboard rather than `base44 deploy` — a CLI deploy ships your local tree directly, bypassing the sync, and the deployed state silently diverges from the repo.
+Stop without deleting state:
 
-## Docs & Support
+```powershell
+.\scripts\docker-down.ps1
+```
 
-GitHub integration: [https://docs.base44.com/developers/app-code/local-development/github](https://docs.base44.com/developers/app-code/local-development/github)
+The named Postgres volume persists across restarts.
 
-Local development: [https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview)
+## Durable governance
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Workers claim only:
+- their exact `AGENT_NAME`
+- `status=pending`
+- `autonomous=true`
+
+Task claiming uses Postgres row locking to prevent double execution.
+
+The runtime independently blocks protected actions such as:
+- domain purchases
+- DNS changes
+- production deployments
+- default-branch merges
+- outbound email/SMS
+- live social publishing
+- Google mutations/indexing
+- credential/permission changes
+- payments
+
+Protected work becomes `needs_approval` even if an upstream producer incorrectly marks it autonomous.
+
+## Railway
+
+The same runtime can run continuously in Railway.
+
+Recommended topology:
+- 1 runtime API service
+- 8 worker services
+- PostgreSQL/Supabase Postgres
+
+See `docs/architecture/RAILWAY_REPO_NATIVE.md`.
+
+## Database
+
+The runtime uses standard PostgreSQL and can target:
+- Docker Postgres
+- Railway Postgres
+- Supabase Postgres
+
+Migrations live in `runtime/migrations/`.
+
+## OpenAI
+
+Model execution uses the OpenAI Responses API.
+
+Required server-only variable:
+
+```text
+OPENAI_API_KEY
+```
+
+Optional:
+
+```text
+OPENAI_MODEL=gpt-6-luna
+OPENAI_BASE_URL=https://api.openai.com/v1
+```
+
+## Legacy donor code
+
+The `base44/` directory remains in the repository only as legacy/donor source while repo-native migration is completed. It is **not** required by the repo-native Docker runtime.
+
+Do not publish or mutate Base44 as part of the repo-native runtime workflow.
+
+## Validation
+
+Repo-native CI boots PostgreSQL + the runtime and proves:
+- migrations apply
+- runtime health succeeds
+- all eight agents load
+- unauthorized worker calls fail
+- protected tasks fail closed to `needs_approval`
+
+See `.github/workflows/repo-native-runtime-ci.yml`.

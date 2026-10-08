@@ -3,5 +3,7 @@ startCommand = "node worker.js"
 restartPolicyType = "ON_FAILURE"
 maxRestartPerPeriod = 3
 
-# Railway will inject APP_URL, WORKER_SECRET, POLL_INTERVAL, MAX_CYCLES,
-# and REPORT_EMAIL as environment variables from the Railway dashboard.
+# Required service variables:
+# RUNTIME_URL, RUNTIME_TOKEN, AGENT_NAME
+# Optional:
+# WORKER_ID, POLL_INTERVAL, MAX_CYCLES, RUNTIME_KIND=railway
