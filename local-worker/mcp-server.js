@@ -129,8 +129,13 @@ function validateExecutorPayload(input) {
   return input
 }
 
-const buggy = 'function slugify(text) { return text.toLowerCase().replace(/ /g, "-") }\\n'
-const fixed = 'function slugify(text) {\\n  if (typeof text !== "string") throw new TypeError("text must be a string")\\n  return text.normalize("NFKD").replace(/[\\\\u0300-\\\\u036f]/g, "")\\n    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")\\n}\\n'
+const buggy = String.raw`function slugify(text) { return text.toLowerCase().replace(/ /g, "-") }\n`
+const fixed = String.raw`function slugify(text) {
+  if (typeof text !== "string") throw new TypeError("text must be a string")
+  return text.normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+}
+`
 const canaryCases = [['Hello World','hello-world'],['  Hello   World  ','hello-world'],['Café déjà vu','cafe-deja-vu'],['Build, test & ship!','build-test-ship'],['Release 2.0','release-2-0'],['A\\tB\\nC','a-b-c'],['---already---slugged---','already-slugged'],['','']]
 function sha256(value) { return createHash('sha256').update(value).digest('hex') }
 function runFixture(source) {
