@@ -2,9 +2,28 @@
 
 A zero-dependency Node.js worker that runs the hardened agent loop **continuously** on your machine. Deploy the same code to Railway for 24/7 uptime when your laptop sleeps.
 
-The worker polls your Base44 app's `runAgentLoop` function on a configurable interval, executing autonomous tasks (SEO audits, sitemap submissions, report emails, competitor scans) without any human interaction.
+The Railway service exposes a native authenticated MCP server and guarded coding-execution contract. The legacy Base44 poller remains in `worker.js` for reference but is no longer the Railway startup path.
 
 ---
+
+## Native MCP Server
+
+The Railway service now starts `mcp-server.js`, a dependency-free authenticated MCP HTTP server. Base44 is no longer required.
+
+Endpoints:
+
+- `GET /healthz` — readiness and execution status.
+- `POST /mcp` — JSON-RPC MCP endpoint. Requires `Authorization: Bearer $MCP_BEARER_TOKEN`.
+- `POST /v1/execute` — reserved executor contract; returns a safe blocked response until an isolated sandbox adapter is enabled.
+
+Supported MCP methods:
+
+- `initialize`
+- `tools/list`
+- `tools/call` with `generate_mcp_server`
+- `tools/call` with `execute_coding_job` (blocked by default)
+
+Generate a server manifest by calling `generate_mcp_server` with a name and validated tool definitions. The response is portable and targets Railway Streamable HTTP. Set `MCP_BEARER_TOKEN` in Railway; never commit it or place it in client-side code.
 
 ## Quick Start (Local)
 

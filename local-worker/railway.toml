@@ -1,7 +1,8 @@
 [deploy]
-startCommand = "node worker.js"
+startCommand = "node mcp-server.js"
 restartPolicyType = "ON_FAILURE"
 maxRestartPerPeriod = 3
 
-# Railway will inject APP_URL, WORKER_SECRET, POLL_INTERVAL, MAX_CYCLES,
-# and REPORT_EMAIL as environment variables from the Railway dashboard.
+# Required in Railway: MCP_BEARER_TOKEN. The server exposes /healthz,
+# /mcp, and /v1/execute. Execution stays disabled until the isolated
+# sandbox adapter is explicitly enabled with EDEN_F2_EXECUTOR_ENABLED=true.

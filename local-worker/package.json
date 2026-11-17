@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "node worker.js",
+    "start": "node mcp-server.js",
     "dev": "node --watch worker.js"
   }
 }
