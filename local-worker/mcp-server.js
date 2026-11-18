@@ -132,14 +132,14 @@ function validateExecutorPayload(input) {
 const buggy = String.raw`function slugify(text) { return text.toLowerCase().replace(/ /g, "-") }\n`
 const fixed = String.raw`function slugify(text) {
   if (typeof text !== "string") throw new TypeError("text must be a string")
-  return text.normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "")
+  return text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
 }
 `
-const canaryCases = [['Hello World','hello-world'],['  Hello   World  ','hello-world'],['Café déjà vu','cafe-deja-vu'],['Build, test & ship!','build-test-ship'],['Release 2.0','release-2-0'],['A\\tB\\nC','a-b-c'],['---already---slugged---','already-slugged'],['','']]
+const canaryCases = [['Hello World','hello-world'],['  Hello   World  ','hello-world'],['Café déjà vu','cafe-deja-vu'],['Build, test & ship!','build-test-ship'],['Release 2.0','release-2-0'],['A\tB\nC','a-b-c'],['---already---slugged---','already-slugged'],['','']]
 function sha256(value) { return createHash('sha256').update(value).digest('hex') }
 function runFixture(source) {
-  const code = `${source}\\nconst cases=${JSON.stringify(canaryCases)};let passed=0;for(const [input,expected] of cases){if(slugify(input)===expected)passed++}passed`
+  const code = `${source}\nconst cases=${JSON.stringify(canaryCases)};let passed=0;for(const [input,expected] of cases){if(slugify(input)===expected)passed++}passed`
   return new Script(code).runInNewContext({}, { timeout: 500 })
 }
 async function runF2Canary() {
