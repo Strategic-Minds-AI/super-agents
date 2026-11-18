@@ -129,7 +129,7 @@ function validateExecutorPayload(input) {
   return input
 }
 
-const buggy = String.raw`function slugify(text) { return text.toLowerCase().replace(/ /g, "-") }\n`
+const buggy = String.raw`function slugify(text) { return text.toLowerCase().replace(/ /g, "-") }`
 const fixed = String.raw`function slugify(text) {
   if (typeof text !== "string") throw new TypeError("text must be a string")
   return text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
