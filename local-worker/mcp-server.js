@@ -188,6 +188,7 @@ async function handleMcp(req, res) {
   if (!authorized(req)) return json(res, 401, { error: 'unauthorized' })
   let body
   try { body = await readJson(req) } catch (error) { return json(res, 400, { error: error.message }) }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return json(res, 400, { error: 'invalid_request' })
   const id = body.id ?? null
   try {
     if (body.method === 'initialize') {
